@@ -22,6 +22,7 @@ linters:
     - paralleltest # Распараллеливание тестирования не выполняем
     - execinquery # Линтер не позволяет выполнять SQL-запросы, включающие 'RETURNING'
     - contextcheck # Линтер считает инициализацию контекста для gracefull shutdown без наследования ошибкой
+    - wrapcheck # Оборачивание ошибок
 
 linters-settings:
   cyclop:
