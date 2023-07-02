@@ -9,19 +9,24 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/KryukovO/gophermart/internal/gophermart/config"
-	"github.com/KryukovO/gophermart/internal/gophermart/server"
+	"github.com/KryukovO/gophermart/internal/config"
+	"github.com/KryukovO/gophermart/internal/server"
 	"github.com/KryukovO/gophermart/internal/usecases"
 	"github.com/KryukovO/gophermart/internal/usecases/repository/pgrepo"
-	"golang.org/x/sync/errgroup"
 
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 )
 
 func Run(cfg *config.Config, logger *log.Logger) error {
 	logger.Info("Connecting to the repository...")
 
-	repo, err := pgrepo.NewPgRepo(cfg.DSN, cfg.Migrations)
+	repoTimeout := time.Duration(cfg.RepositioryTimeout) * time.Second
+
+	repoCtx, cancel := context.WithTimeout(context.Background(), repoTimeout)
+	defer cancel()
+
+	repo, err := pgrepo.NewPgRepo(repoCtx, cfg.DSN, cfg.Migrations)
 	if err != nil {
 		return err
 	}
@@ -32,9 +37,11 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 		logger.Info("Repository closed")
 	}()
 
-	user := usecases.NewUserUseCase(repo)
+	user := usecases.NewUserUseCase(repo, repoTimeout)
+	order := usecases.NewOrderUseCase(repo, repoTimeout)
+	balance := usecases.NewBalanceUseCase(repo, repoTimeout)
 
-	server, err := server.NewServer(cfg.Address, user, logger)
+	server, err := server.NewServer(cfg.Address, user, order, balance, logger)
 	if err != nil {
 		return err
 	}

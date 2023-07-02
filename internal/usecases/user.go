@@ -1,39 +1,23 @@
 package usecases
 
+import "time"
+
 type UserUseCase struct {
-	repo UserRepo
+	repo    UserRepo
+	timeout time.Duration
 }
 
-func NewUserUseCase(repo UserRepo) *UserUseCase {
+func NewUserUseCase(repo UserRepo, timeout time.Duration) *UserUseCase {
 	return &UserUseCase{
-		repo: repo,
+		repo:    repo,
+		timeout: timeout,
 	}
 }
 
-func (uc *UserUseCase) Register() error {
+func (uc *UserUseCase) CreateUser() error {
 	return nil
 }
 
 func (uc *UserUseCase) Login() error {
-	return nil
-}
-
-func (uc *UserUseCase) Orders() error {
-	return nil
-}
-
-func (uc *UserUseCase) AddOrder() error {
-	return nil
-}
-
-func (uc *UserUseCase) Balance() error {
-	return nil
-}
-
-func (uc *UserUseCase) Withdraw() error {
-	return nil
-}
-
-func (uc *UserUseCase) Withdrawals() error {
 	return nil
 }

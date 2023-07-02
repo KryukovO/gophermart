@@ -1,6 +1,7 @@
 package pgrepo
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -12,19 +13,19 @@ type PgRepo struct {
 	db *sql.DB
 }
 
-func NewPgRepo(dsn, migrations string) (*PgRepo, error) {
-	dbPool, err := sql.Open("pgx", dsn)
-	if err != nil {
-		return nil, err
-	}
-
-	err = dbPool.Ping()
+func NewPgRepo(ctx context.Context, dsn, migrations string) (*PgRepo, error) {
+	database, err := sql.Open("pgx", dsn)
 	if err != nil {
 		return nil, err
 	}
 
 	repo := &PgRepo{
-		db: dbPool,
+		db: database,
+	}
+
+	err = repo.Ping(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	err = repo.runMigrations(dsn, migrations)
@@ -51,12 +52,16 @@ func (repo *PgRepo) runMigrations(dsn, migrations string) error {
 	return nil
 }
 
-func (repo *PgRepo) Register() error {
-	return nil
+func (repo *PgRepo) Ping(ctx context.Context) error {
+	return repo.db.PingContext(ctx)
 }
 
 func (repo *PgRepo) Close() error {
 	return repo.db.Close()
+}
+
+func (repo *PgRepo) CreateUser() error {
+	return nil
 }
 
 func (repo *PgRepo) Login() error {

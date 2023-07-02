@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
+	"github.com/KryukovO/gophermart/internal/config"
 	"github.com/KryukovO/gophermart/internal/gophermart"
-	"github.com/KryukovO/gophermart/internal/gophermart/config"
 
 	"github.com/caarlos0/env"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -18,8 +18,9 @@ const (
 	dsn            = ""
 	accrualAddress = ""
 
-	shutdownTimeout = 10
-	migrations      = "sql/migrations"
+	repositoryTimeout = 3
+	shutdownTimeout   = 10
+	migrations        = "sql/migrations"
 )
 
 func main() {
@@ -28,6 +29,7 @@ func main() {
 	flag.StringVar(&cfg.Address, "a", address, "Address to run HTTP server")
 	flag.StringVar(&cfg.DSN, "d", dsn, "URI to database")
 	flag.StringVar(&cfg.AccrualAddress, "r", accrualAddress, "Accrual system address")
+	flag.UintVar(&cfg.RepositioryTimeout, "timeout", repositoryTimeout, "Repository connection timeout")
 	flag.UintVar(&cfg.ShutdownTimeout, "shutdown", shutdownTimeout, "Server shutdown timeout")
 	flag.StringVar(&cfg.Migrations, "migrations", migrations, "Directory of database migration files")
 	flag.Parse()

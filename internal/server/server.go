@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/KryukovO/gophermart/internal/gophermart/server/handlers"
+	"github.com/KryukovO/gophermart/internal/server/handlers"
 	"github.com/KryukovO/gophermart/internal/usecases"
 
 	"github.com/labstack/echo"
@@ -19,7 +19,11 @@ type Server struct {
 	logger     *log.Logger
 }
 
-func NewServer(address string, user usecases.User, logger *log.Logger) (*Server, error) {
+func NewServer(
+	address string,
+	user usecases.User, order usecases.Order, balance usecases.Balance,
+	logger *log.Logger,
+) (*Server, error) {
 	if user == nil {
 		return nil, ErrUseCaseIsNil
 	}
@@ -33,7 +37,7 @@ func NewServer(address string, user usecases.User, logger *log.Logger) (*Server,
 	httpServer.HideBanner = true
 	httpServer.HidePort = true
 
-	err := handlers.SetHandlers(httpServer, user, logger)
+	err := handlers.SetHandlers(httpServer.Router(), user, order, balance, logger)
 	if err != nil {
 		return nil, err
 	}

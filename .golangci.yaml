@@ -23,6 +23,7 @@ linters:
     - execinquery # Линтер не позволяет выполнять SQL-запросы, включающие 'RETURNING'
     - contextcheck # Линтер считает инициализацию контекста для gracefull shutdown без наследования ошибкой
     - wrapcheck # Оборачивание ошибок
+    - funlen # Ограничение длины функций
 
 linters-settings:
   cyclop:

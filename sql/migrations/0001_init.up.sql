@@ -81,7 +81,7 @@ BEGIN
         CREATE TABLE IF NOT EXISTS "orders" (
             id INTEGER GENERATED ALWAYS AS IDENTITY,
             user_id INTEGER NOT NULL,
-            order_num INTEGER NOT NULL,
+            order_num INTEGER NOT NULL UNIQUE,
             PRIMARY KEY(id),
             FOREIGN KEY(user_id) REFERENCES user(id)
         );
