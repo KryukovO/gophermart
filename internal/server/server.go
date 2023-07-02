@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/KryukovO/gophermart/internal/server/handlers"
 	"github.com/KryukovO/gophermart/internal/usecases"
@@ -20,7 +21,7 @@ type Server struct {
 }
 
 func NewServer(
-	address string, secret []byte,
+	address string, secret []byte, tokenLifetime time.Duration,
 	user usecases.User, order usecases.Order, balance usecases.Balance,
 	logger *log.Logger,
 ) (*Server, error) {
@@ -37,7 +38,12 @@ func NewServer(
 	httpServer.HideBanner = true
 	httpServer.HidePort = true
 
-	err := handlers.SetHandlers(httpServer.Router(), secret, user, order, balance, logger)
+	err := handlers.SetHandlers(
+		httpServer.Router(),
+		secret, tokenLifetime,
+		user, order, balance,
+		logger,
+	)
 	if err != nil {
 		return nil, err
 	}

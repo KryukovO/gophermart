@@ -10,7 +10,7 @@ BEGIN
         ALTER TABLE "__users" RENAME TO "users";
     ELSE
         CREATE TABLE IF NOT EXISTS "users" (
-            id INTEGER GENERATED ALWAYS AS IDENTITY,
+            id BIGINT GENERATED ALWAYS AS IDENTITY,
             login TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
             salt TEXT NOT NULL,
@@ -28,19 +28,20 @@ BEGIN
         ALTER TABLE "__user_balance" RENAME TO "user_balance";
     ELSE
         CREATE TABLE IF NOT EXISTS "user_balance" (
-            id INTEGER GENERATED ALWAYS AS IDENTITY,
-            user_id INTEGER NOT NULL UNIQUE,
+            id BIGINT GENERATED ALWAYS AS IDENTITY,
+            user_id BIGINT NOT NULL UNIQUE,
             balance INTEGER NOT NULL,
             PRIMARY KEY(id),
-            FOREIGN KEY(user_id) REFERENCES user(id)
+            FOREIGN KEY(user_id) REFERENCES users(id)
         );
     END IF;
     --
     --
     IF EXISTS (
         SELECT 1
-        FROM information_schema.user_defined_types
-        WHERE user_defined_type_name = 'balance_operation' AND user_defined_type_schema = 'public';
+        FROM pg_type t 
+        JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace 
+        WHERE n.nspname = 'public' AND t.typname = 'balance_operation'
     )
     THEN
         ALTER TYPE "balance_operation" ADD VALUE IF NOT EXISTS 'withdrawal';
@@ -59,13 +60,14 @@ BEGIN
         ALTER TABLE "__user_balance_log" RENAME TO "user_balance_log";
     ELSE
         CREATE TABLE IF NOT EXISTS "user_balance_log" (
-            id INTEGER GENERATED ALWAYS AS IDENTITY,
+            id BIGINT GENERATED ALWAYS AS IDENTITY,
             login TEXT NOT NULL UNIQUE,
-            user_id INTEGER NOT NULL,
+            user_id BIGINT NOT NULL,
             created TIMESTAMP WITH TIME ZONE NOT NULL,
             operation "balance_operation" NOT NULL,
             sum INTEGER NOT NULL,
-            PRIMARY KEY(id)
+            PRIMARY KEY(id),
+            FOREIGN KEY(user_id) REFERENCES users(id)
         );
     END IF;
     --
@@ -79,11 +81,11 @@ BEGIN
         ALTER TABLE "__orders" RENAME TO "orders";
     ELSE
         CREATE TABLE IF NOT EXISTS "orders" (
-            id INTEGER GENERATED ALWAYS AS IDENTITY,
-            user_id INTEGER NOT NULL,
+            id BIGINT GENERATED ALWAYS AS IDENTITY,
+            user_id BIGINT NOT NULL,
             order_num INTEGER NOT NULL UNIQUE,
             PRIMARY KEY(id),
-            FOREIGN KEY(user_id) REFERENCES user(id)
+            FOREIGN KEY(user_id) REFERENCES users(id)
         );
     END IF;
 END $$;

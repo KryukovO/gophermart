@@ -41,7 +41,12 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 	order := usecases.NewOrderUseCase(repo, repoTimeout)
 	balance := usecases.NewBalanceUseCase(repo, repoTimeout)
 
-	server, err := server.NewServer(cfg.Address, []byte(cfg.SecretKey), user, order, balance, logger)
+	server, err := server.NewServer(
+		cfg.Address, []byte(cfg.SecretKey),
+		time.Duration(cfg.UserTokenTTL)*time.Minute,
+		user, order, balance,
+		logger,
+	)
 	if err != nil {
 		return err
 	}

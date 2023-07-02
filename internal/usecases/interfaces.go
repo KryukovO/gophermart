@@ -1,6 +1,10 @@
 package usecases
 
-import "context"
+import (
+	"context"
+
+	"github.com/KryukovO/gophermart/internal/entities"
+)
 
 type Repo interface {
 	Ping(ctx context.Context) error
@@ -8,13 +12,13 @@ type Repo interface {
 }
 
 type User interface {
-	CreateUser() error
-	Login() error
+	Register(ctx context.Context, user *entities.User, secret []byte) error
+	Login(ctx context.Context, user *entities.User, secret []byte) error
 }
 
 type UserRepo interface {
-	CreateUser() error
-	Login() error
+	Register(ctx context.Context, user *entities.User) error
+	Login(ctx context.Context, user *entities.User) error
 }
 
 type Order interface {

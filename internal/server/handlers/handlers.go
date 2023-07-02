@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"time"
 
 	"github.com/KryukovO/gophermart/internal/server/middleware"
 	"github.com/KryukovO/gophermart/internal/usecases"
@@ -16,7 +17,8 @@ var (
 )
 
 func SetHandlers(
-	router *echo.Router, secret []byte,
+	router *echo.Router,
+	secret []byte, tokenLifetime time.Duration,
 	user usecases.User, order usecases.Order, balance usecases.Balance,
 	logger *log.Logger,
 ) error {
@@ -26,7 +28,7 @@ func SetHandlers(
 
 	mwManager := middleware.NewManager(secret, logger)
 
-	userController, err := NewUserController(user, logger)
+	userController, err := NewUserController(user, secret, tokenLifetime, logger)
 	if err != nil {
 		return err
 	}
