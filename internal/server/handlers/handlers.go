@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 
+	"github.com/KryukovO/gophermart/internal/server/middleware"
 	"github.com/KryukovO/gophermart/internal/usecases"
 
 	"github.com/labstack/echo"
@@ -15,7 +16,7 @@ var (
 )
 
 func SetHandlers(
-	router *echo.Router,
+	router *echo.Router, secret []byte,
 	user usecases.User, order usecases.Order, balance usecases.Balance,
 	logger *log.Logger,
 ) error {
@@ -23,17 +24,19 @@ func SetHandlers(
 		return ErrRouterIsNil
 	}
 
+	mwManager := middleware.NewManager(secret, logger)
+
 	userController, err := NewUserController(user, logger)
 	if err != nil {
 		return err
 	}
 
-	orderController, err := NewOrderController(order, logger)
+	orderController, err := NewOrderController(order, mwManager, logger)
 	if err != nil {
 		return err
 	}
 
-	balanceController, err := NewBalanceController(balance, logger)
+	balanceController, err := NewBalanceController(balance, mwManager, logger)
 	if err != nil {
 		return err
 	}

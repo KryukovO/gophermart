@@ -18,9 +18,11 @@ const (
 	dsn            = ""
 	accrualAddress = ""
 
+	secretKey         = ""
 	repositoryTimeout = 3
 	shutdownTimeout   = 10
 	migrations        = "sql/migrations"
+	userTokenTTL      = 30
 )
 
 func main() {
@@ -29,9 +31,11 @@ func main() {
 	flag.StringVar(&cfg.Address, "a", address, "Address to run HTTP server")
 	flag.StringVar(&cfg.DSN, "d", dsn, "URI to database")
 	flag.StringVar(&cfg.AccrualAddress, "r", accrualAddress, "Accrual system address")
+	flag.StringVar(&cfg.SecretKey, "secret", secretKey, "Authorization token encryption key")
 	flag.UintVar(&cfg.RepositioryTimeout, "timeout", repositoryTimeout, "Repository connection timeout")
 	flag.UintVar(&cfg.ShutdownTimeout, "shutdown", shutdownTimeout, "Server shutdown timeout")
 	flag.StringVar(&cfg.Migrations, "migrations", migrations, "Directory of database migration files")
+	flag.UintVar(&cfg.UserTokenTTL, "userttl", cfg.UserTokenTTL, "User token lifetime (minutes)")
 	flag.Parse()
 
 	logger := log.New()

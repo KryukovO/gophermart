@@ -20,7 +20,7 @@ type Server struct {
 }
 
 func NewServer(
-	address string,
+	address string, secret []byte,
 	user usecases.User, order usecases.Order, balance usecases.Balance,
 	logger *log.Logger,
 ) (*Server, error) {
@@ -37,7 +37,7 @@ func NewServer(
 	httpServer.HideBanner = true
 	httpServer.HidePort = true
 
-	err := handlers.SetHandlers(httpServer.Router(), user, order, balance, logger)
+	err := handlers.SetHandlers(httpServer.Router(), secret, user, order, balance, logger)
 	if err != nil {
 		return nil, err
 	}

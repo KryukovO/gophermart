@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/KryukovO/gophermart/internal/server/middleware"
 	"github.com/KryukovO/gophermart/internal/usecases"
 	"github.com/labstack/echo"
 
@@ -9,10 +10,13 @@ import (
 
 type BalanceController struct {
 	balance usecases.Balance
+	mw      *middleware.Manager
 	logger  *log.Logger
 }
 
-func NewBalanceController(balance usecases.Balance, logger *log.Logger) (*BalanceController, error) {
+func NewBalanceController(
+	balance usecases.Balance, mwManager *middleware.Manager, logger *log.Logger,
+) (*BalanceController, error) {
 	if balance == nil {
 		return nil, ErrUseCaseIsNil
 	}
@@ -24,6 +28,7 @@ func NewBalanceController(balance usecases.Balance, logger *log.Logger) (*Balanc
 
 	return &BalanceController{
 		balance: balance,
+		mw:      mwManager,
 		logger:  controllerLogger,
 	}, nil
 }

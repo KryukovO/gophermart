@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/KryukovO/gophermart/internal/server/middleware"
 	"github.com/KryukovO/gophermart/internal/usecases"
 	"github.com/labstack/echo"
 
@@ -9,10 +10,13 @@ import (
 
 type OrderController struct {
 	order  usecases.Order
+	mw     *middleware.Manager
 	logger *log.Logger
 }
 
-func NewOrderController(order usecases.Order, logger *log.Logger) (*OrderController, error) {
+func NewOrderController(
+	order usecases.Order, mwManager *middleware.Manager, logger *log.Logger,
+) (*OrderController, error) {
 	if order == nil {
 		return nil, ErrUseCaseIsNil
 	}
@@ -24,6 +28,7 @@ func NewOrderController(order usecases.Order, logger *log.Logger) (*OrderControl
 
 	return &OrderController{
 		order:  order,
+		mw:     mwManager,
 		logger: controllerLogger,
 	}, nil
 }
