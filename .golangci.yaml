@@ -41,3 +41,10 @@ linters-settings:
       - stdlib
       - generic
       - echo.Context
+
+  varnamelen:
+    min-name-length: 2
+    ignore-decls:
+      - e echo.Context
+      - t testing.T
+      - p []byte

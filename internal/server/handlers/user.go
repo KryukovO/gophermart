@@ -64,6 +64,7 @@ func (c *UserController) registerHandler(e echo.Context) error {
 	body, err := io.ReadAll(e.Request().Body)
 	if err != nil {
 		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
@@ -81,6 +82,7 @@ func (c *UserController) registerHandler(e echo.Context) error {
 		}
 
 		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
@@ -96,6 +98,7 @@ func (c *UserController) loginHandler(e echo.Context) error {
 	body, err := io.ReadAll(e.Request().Body)
 	if err != nil {
 		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
@@ -113,12 +116,14 @@ func (c *UserController) loginHandler(e echo.Context) error {
 		}
 
 		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
 	tokenString, err := utils.BuildJSWTString(c.secret, c.tokenLifetime, user.ID)
 	if err != nil {
 		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
 		return e.NoContent(http.StatusInternalServerError)
 	}
 

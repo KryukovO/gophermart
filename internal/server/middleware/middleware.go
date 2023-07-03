@@ -29,70 +29,75 @@ func NewManager(secret []byte, logger *log.Logger) *Manager {
 }
 
 func (mw *Manager) LoggingMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return echo.HandlerFunc(func(echoCtx echo.Context) error {
+	return echo.HandlerFunc(func(e echo.Context) error {
 		uuid := uuid.New()
 
-		echoCtx.Set("uuid", uuid)
+		e.Set("uuid", uuid)
 
 		mw.logger.Infof(
 			"[%s] Request received with %s method: %s",
-			uuid, echoCtx.Request().Method, echoCtx.Request().URL.Path,
+			uuid, e.Request().Method, e.Request().URL.Path,
 		)
 
-		return next(echoCtx)
+		return next(e)
 	})
 }
 
 func (mw *Manager) GZipMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return echo.HandlerFunc(func(echoCtx echo.Context) error {
-		uuid := echoCtx.Get("uuid")
+	return echo.HandlerFunc(func(e echo.Context) error {
+		uuid := e.Get("uuid")
 		if uuid == nil {
 			uuid = ""
 		}
 
-		contentEncoding := echoCtx.Request().Header.Get("Content-Encoding")
+		contentEncoding := e.Request().Header.Get("Content-Encoding")
 		sendsGZip := strings.Contains(contentEncoding, "gzip")
 
 		if sendsGZip {
-			reader, err := NewReader(echoCtx.Request().Body)
+			reader, err := NewReader(e.Request().Body)
 			if err != nil {
 				mw.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
-				return echoCtx.NoContent(http.StatusInternalServerError)
+
+				return e.NoContent(http.StatusInternalServerError)
 			}
 
 			defer reader.Close()
 
-			echoCtx.Request().Body = reader
+			e.Request().Body = reader
 		}
 
-		acceptEnc := echoCtx.Request().Header.Get("Accept-Encoding")
+		acceptEnc := e.Request().Header.Get("Accept-Encoding")
 		supportGZip := strings.Contains(acceptEnc, "gzip")
 
 		if supportGZip {
-			writer := NewWriter(echoCtx.Response().Writer)
-			echoCtx.Response().Writer = writer
+			acceptTypes := [...]string{
+				"application/json",
+				"text/html",
+			}
+			writer := NewWriter(e.Response().Writer, acceptTypes[:])
+			e.Response().Writer = writer
 		}
 
-		return next(echoCtx)
+		return next(e)
 	})
 }
 
 func (mw *Manager) AuthenticationMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return echo.HandlerFunc(func(echoCtx echo.Context) error {
-		tokenCookie, err := echoCtx.Cookie("token")
+	return echo.HandlerFunc(func(e echo.Context) error {
+		tokenCookie, err := e.Cookie("token")
 		if err != nil {
-			return echoCtx.NoContent(http.StatusUnauthorized)
+			return e.NoContent(http.StatusUnauthorized)
 		}
 
 		var userID int
 
 		err = utils.ParseTokenString(&userID, tokenCookie.Value, mw.secret)
 		if err != nil {
-			return echoCtx.NoContent(http.StatusUnauthorized)
+			return e.NoContent(http.StatusUnauthorized)
 		}
 
-		echoCtx.Set("userID", userID)
+		e.Set("userID", userID)
 
-		return next(echoCtx)
+		return next(e)
 	})
 }
