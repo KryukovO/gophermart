@@ -17,7 +17,7 @@ func GenerateRandomSalt(src rand.Source) (string, error) {
 	runes := []rune(alphabet)
 
 	for i := 0; i < saltLength; i++ {
-		salt.WriteRune(runes[rnd.Intn(len(alphabet))])
+		salt.WriteRune(runes[rnd.Intn(len(runes))])
 	}
 
 	return salt.String(), nil
