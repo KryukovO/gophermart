@@ -13,16 +13,17 @@ import (
 
 var (
 	ErrUseCaseIsNil = errors.New("usecase is nil")
+	ErrServerIsNil  = errors.New("server instance is nil")
 	ErrRouterIsNil  = errors.New("router is nil")
 )
 
 func SetHandlers(
-	router *echo.Router,
+	server *echo.Echo,
 	secret []byte, tokenLifetime time.Duration,
 	user usecases.User, order usecases.Order, balance usecases.Balance,
 	logger *log.Logger,
 ) error {
-	if router == nil {
+	if server == nil {
 		return ErrRouterIsNil
 	}
 
@@ -43,20 +44,25 @@ func SetHandlers(
 		return err
 	}
 
-	err = userController.MapHandlers(router)
+	err = userController.MapHandlers(server.Router())
 	if err != nil {
 		return err
 	}
 
-	err = orderController.MapHandlers(router)
+	err = orderController.MapHandlers(server.Router())
 	if err != nil {
 		return err
 	}
 
-	err = balanceController.MapHandlers(router)
+	err = balanceController.MapHandlers(server.Router())
 	if err != nil {
 		return err
 	}
+
+	server.Use(
+		mwManager.LoggingMiddleware,
+		mwManager.GZipMiddleware,
+	)
 
 	return nil
 }

@@ -39,7 +39,7 @@ func NewServer(
 	httpServer.HidePort = true
 
 	err := handlers.SetHandlers(
-		httpServer.Router(),
+		httpServer,
 		secret, tokenLifetime,
 		user, order, balance,
 		logger,

@@ -56,9 +56,14 @@ func (c *UserController) MapHandlers(router *echo.Router) error {
 }
 
 func (c *UserController) registerHandler(e echo.Context) error {
+	uuid := e.Get("uuid")
+	if uuid == nil {
+		uuid = ""
+	}
+
 	body, err := io.ReadAll(e.Request().Body)
 	if err != nil {
-		c.logger.Errorf("Something went wrong: %s", err)
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
@@ -75,7 +80,7 @@ func (c *UserController) registerHandler(e echo.Context) error {
 			return e.NoContent(http.StatusConflict)
 		}
 
-		c.logger.Errorf("Something went wrong: %s", err)
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
@@ -83,9 +88,14 @@ func (c *UserController) registerHandler(e echo.Context) error {
 }
 
 func (c *UserController) loginHandler(e echo.Context) error {
+	uuid := e.Get("uuid")
+	if uuid == nil {
+		uuid = ""
+	}
+
 	body, err := io.ReadAll(e.Request().Body)
 	if err != nil {
-		c.logger.Errorf("Something went wrong: %s", err)
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
@@ -102,13 +112,13 @@ func (c *UserController) loginHandler(e echo.Context) error {
 			return e.NoContent(http.StatusUnauthorized)
 		}
 
-		c.logger.Errorf("Something went wrong: %s", err)
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
 	tokenString, err := utils.BuildJSWTString(c.secret, c.tokenLifetime, user.ID)
 	if err != nil {
-		c.logger.Errorf("Something went wrong: %s", err)
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
