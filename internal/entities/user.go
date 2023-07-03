@@ -5,6 +5,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"math/rand"
+	"time"
+
+	"github.com/KryukovO/gophermart/internal/utils"
 )
 
 var (
@@ -13,14 +17,24 @@ var (
 )
 
 type User struct {
-	ID       int64  `json:"-"`
-	Login    string `json:"login"`
-	Password string `json:"password"`
-	Salt     string `json:"-"`
+	ID                int64  `json:"-"`
+	Login             string `json:"login"`
+	Password          string `json:"password"`
+	EncryptedPassword string `json:"-"`
+	Salt              string `json:"-"`
 }
 
 // Выполняет шифрование SHA-256 поля Password с добавлением соли.
 func (user *User) Encrypt(secret []byte) error {
+	if user.Salt == "" {
+		salt, err := utils.GenerateRandomSalt(rand.NewSource(time.Now().UnixNano()))
+		if err != nil {
+			return err
+		}
+
+		user.Salt = salt
+	}
+
 	enc := hmac.New(sha256.New, secret)
 
 	_, err := enc.Write([]byte(user.Password + user.Salt))
@@ -28,23 +42,29 @@ func (user *User) Encrypt(secret []byte) error {
 		return err
 	}
 
-	user.Password = hex.EncodeToString(enc.Sum(nil))
+	user.EncryptedPassword = hex.EncodeToString(enc.Sum(nil))
 
 	return nil
 }
 
-// Проверка валидности password для пользователя
-func (user *User) Validate(password string, secret []byte) error {
+// Возвращает ErrInvalidLoginPassword, если результат SHA-256 шифрования Password
+// не соответствует EncryptedPassword с учетом Salt и secret.
+// Всегда nil, если EncryptedPassword не установлен.
+func (user *User) Validate(secret []byte) error {
+	if user.EncryptedPassword == "" {
+		return nil
+	}
+
 	enc := hmac.New(sha256.New, secret)
 
-	_, err := enc.Write([]byte(password + user.Salt))
+	_, err := enc.Write([]byte(user.Password + user.Salt))
 	if err != nil {
 		return err
 	}
 
 	hash := hex.EncodeToString(enc.Sum(nil))
 
-	if user.Password != hash {
+	if user.EncryptedPassword != hash {
 		return ErrInvalidLoginPassword
 	}
 

@@ -79,7 +79,7 @@ func (repo *PgRepo) Register(ctx context.Context, user *entities.User) error {
 
 	var id int64
 
-	err = tx.QueryRowContext(ctx, query, user.Login, user.Password, user.Salt).Scan(&id)
+	err = tx.QueryRowContext(ctx, query, user.Login, user.EncryptedPassword, user.Salt).Scan(&id)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
@@ -102,7 +102,7 @@ func (repo *PgRepo) Login(ctx context.Context, user *entities.User) error {
 		WHERE login = $1
 	`
 
-	err := repo.db.QueryRowContext(ctx, query, user.Login).Scan(&user.ID, &user.Password, &user.Salt)
+	err := repo.db.QueryRowContext(ctx, query, user.Login).Scan(&user.ID, &user.EncryptedPassword, &user.Salt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return entities.ErrInvalidLoginPassword
