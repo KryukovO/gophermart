@@ -1,6 +1,11 @@
 issues:
   exclude:
     - "Error return value of `tx.Rollback` is not checked" # В этом проекте нет смысла проверять успешность отката транзакции
+  exclude-rules:
+    - path: (.+)_test.go
+      linters:
+        - funlen
+        - dupl
 
 linters:
   enable-all: true
