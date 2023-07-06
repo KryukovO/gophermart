@@ -16,7 +16,7 @@ func (repo *BalanceRepo) Balance() error {
 	return nil
 }
 
-func (repo *BalanceRepo) CreateWithdrawal() error {
+func (repo *BalanceRepo) AddWithdrawal() error {
 	return nil
 }
 

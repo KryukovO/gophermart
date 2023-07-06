@@ -20,7 +20,7 @@ func NewUserRepo(db *postgres.Postgres) *UserRepo {
 	return &UserRepo{db: db}
 }
 
-func (repo *UserRepo) CreateUser(ctx context.Context, user *entities.User) error {
+func (repo *UserRepo) AddUser(ctx context.Context, user *entities.User) error {
 	query := `
 		INSERT INTO users(login, password, salt) VALUES($1, $2, $3)
 		RETURNING id
@@ -50,7 +50,7 @@ func (repo *UserRepo) CreateUser(ctx context.Context, user *entities.User) error
 	return tx.Commit()
 }
 
-func (repo *UserRepo) UserByLogin(ctx context.Context, user *entities.User) error {
+func (repo *UserRepo) User(ctx context.Context, user *entities.User) error {
 	query := `
 		SELECT 
 			id, password, salt 

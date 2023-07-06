@@ -33,7 +33,7 @@ func TestRegister(t *testing.T) {
 		{
 			name: "Correct registration",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().CreateUser(gomock.Any(), &user1).Return(nil)
+				mock.EXPECT().AddUser(gomock.Any(), &user1).Return(nil)
 			},
 			args: args{
 				user: &user1,
@@ -43,7 +43,7 @@ func TestRegister(t *testing.T) {
 		{
 			name: "User already exists",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().CreateUser(gomock.Any(), &user1).Return(entities.ErrUserAlreadyExists)
+				mock.EXPECT().AddUser(gomock.Any(), &user1).Return(entities.ErrUserAlreadyExists)
 			},
 			args: args{
 				user: &user1,
@@ -99,7 +99,7 @@ func TestLogin(t *testing.T) {
 		{
 			name: "Correct login",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(nil)
+				mock.EXPECT().User(gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args: args{
 				user: &user1,
@@ -111,7 +111,7 @@ func TestLogin(t *testing.T) {
 		{
 			name: "Invalid login/password",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(entities.ErrInvalidLoginPassword)
+				mock.EXPECT().User(gomock.Any(), gomock.Any()).Return(entities.ErrInvalidLoginPassword)
 			},
 			args: args{
 				user: &user1,

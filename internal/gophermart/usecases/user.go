@@ -29,14 +29,14 @@ func (uc *UserUseCase) Register(ctx context.Context, user *entities.User, secret
 		return err
 	}
 
-	return uc.repo.CreateUser(ctx, user)
+	return uc.repo.AddUser(ctx, user)
 }
 
 func (uc *UserUseCase) Login(ctx context.Context, user *entities.User, secret []byte) error {
 	ctx, cancel := context.WithTimeout(ctx, uc.timeout)
 	defer cancel()
 
-	err := uc.repo.UserByLogin(ctx, user)
+	err := uc.repo.User(ctx, user)
 	if err != nil {
 		return err
 	}

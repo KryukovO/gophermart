@@ -7,17 +7,17 @@ import (
 )
 
 type UserRepo interface {
-	CreateUser(ctx context.Context, user *entities.User) error
-	UserByLogin(ctx context.Context, user *entities.User) error
+	AddUser(ctx context.Context, user *entities.User) error
+	User(ctx context.Context, user *entities.User) error
 }
 
 type OrderRepo interface {
+	AddOrder() error
 	Orders() error
-	CreateOrder() error
 }
 
 type BalanceRepo interface {
 	Balance() error
-	CreateWithdrawal() error
+	AddWithdrawal() error
 	Withdrawals() error
 }

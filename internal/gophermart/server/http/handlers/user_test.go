@@ -69,7 +69,7 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 		{
 			name: "Correct registration",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(nil)
+				mock.EXPECT().AddUser(gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args: args{
 				body: []byte(`{"login":"user1","password":"1234"}`),
@@ -82,7 +82,7 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 		{
 			name: "User already exists",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(entities.ErrUserAlreadyExists)
+				mock.EXPECT().AddUser(gomock.Any(), gomock.Any()).Return(entities.ErrUserAlreadyExists)
 			},
 			args: args{
 				body: []byte(`{"login":"user1","password":"1234"}`),
@@ -162,7 +162,7 @@ func TestUserRequestLoginHandler(t *testing.T) {
 		{
 			name: "Correct login",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(nil)
+				mock.EXPECT().User(gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args: args{
 				body: []byte(`{"login":"user1","password":"1234"}`),
@@ -175,7 +175,7 @@ func TestUserRequestLoginHandler(t *testing.T) {
 		{
 			name: "Invalid login/password",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(entities.ErrInvalidLoginPassword)
+				mock.EXPECT().User(gomock.Any(), gomock.Any()).Return(entities.ErrInvalidLoginPassword)
 			},
 			args: args{
 				body: []byte(`{"login":"user1","password":"1234"}`),

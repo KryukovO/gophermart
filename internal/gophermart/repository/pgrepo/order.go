@@ -12,10 +12,10 @@ func NewOrderRepo(db *postgres.Postgres) *OrderRepo {
 	return &OrderRepo{db: db}
 }
 
-func (repo *OrderRepo) Orders() error {
+func (repo *OrderRepo) AddOrder() error {
 	return nil
 }
 
-func (repo *OrderRepo) CreateOrder() error {
+func (repo *OrderRepo) Orders() error {
 	return nil
 }
