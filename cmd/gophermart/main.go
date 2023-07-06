@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	"github.com/KryukovO/gophermart/internal/config"
 	"github.com/KryukovO/gophermart/internal/gophermart"
+	"github.com/KryukovO/gophermart/internal/gophermart/config"
 
 	"github.com/caarlos0/env"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"

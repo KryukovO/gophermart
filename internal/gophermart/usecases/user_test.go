@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KryukovO/gophermart/internal/entities"
-	mocks "github.com/KryukovO/gophermart/internal/mocks/repository"
+	"github.com/KryukovO/gophermart/internal/gophermart/entities"
+	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -33,7 +33,7 @@ func TestRegister(t *testing.T) {
 		{
 			name: "Correct registration",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().Register(gomock.Any(), &user1).Return(nil)
+				mock.EXPECT().CreateUser(gomock.Any(), &user1).Return(nil)
 			},
 			args: args{
 				user: &user1,
@@ -43,7 +43,7 @@ func TestRegister(t *testing.T) {
 		{
 			name: "User already exists",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().Register(gomock.Any(), &user1).Return(entities.ErrUserAlreadyExists)
+				mock.EXPECT().CreateUser(gomock.Any(), &user1).Return(entities.ErrUserAlreadyExists)
 			},
 			args: args{
 				user: &user1,
@@ -99,7 +99,7 @@ func TestLogin(t *testing.T) {
 		{
 			name: "Correct login",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().Login(gomock.Any(), gomock.Any()).Return(nil)
+				mock.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args: args{
 				user: &user1,
@@ -111,7 +111,7 @@ func TestLogin(t *testing.T) {
 		{
 			name: "Invalid login/password",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().Login(gomock.Any(), gomock.Any()).Return(entities.ErrInvalidLoginPassword)
+				mock.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(entities.ErrInvalidLoginPassword)
 			},
 			args: args{
 				user: &user1,

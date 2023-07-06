@@ -1,13 +1,17 @@
 package usecases
 
-import "time"
+import (
+	"time"
+
+	"github.com/KryukovO/gophermart/internal/gophermart/repository"
+)
 
 type OrderUseCase struct {
-	repo    OrderRepo
+	repo    repository.OrderRepo
 	timeout time.Duration
 }
 
-func NewOrderUseCase(repo OrderRepo, timeout time.Duration) *OrderUseCase {
+func NewOrderUseCase(repo repository.OrderRepo, timeout time.Duration) *OrderUseCase {
 	return &OrderUseCase{
 		repo:    repo,
 		timeout: timeout,

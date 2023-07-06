@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/KryukovO/gophermart/internal/entities"
-	"github.com/KryukovO/gophermart/internal/usecases"
+	"github.com/KryukovO/gophermart/internal/gophermart/entities"
+	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 	"github.com/KryukovO/gophermart/internal/utils"
 	"github.com/labstack/echo"
 
@@ -105,6 +105,7 @@ func (c *UserController) userRequestHandler(
 			Name:     "token",
 			Value:    tokenString,
 			HttpOnly: true,
+			SameSite: http.SameSiteDefaultMode,
 		})
 
 		return e.NoContent(http.StatusOK)

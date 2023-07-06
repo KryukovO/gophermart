@@ -4,15 +4,16 @@ import (
 	"context"
 	"time"
 
-	"github.com/KryukovO/gophermart/internal/entities"
+	"github.com/KryukovO/gophermart/internal/gophermart/entities"
+	"github.com/KryukovO/gophermart/internal/gophermart/repository"
 )
 
 type UserUseCase struct {
-	repo    UserRepo
+	repo    repository.UserRepo
 	timeout time.Duration
 }
 
-func NewUserUseCase(repo UserRepo, timeout time.Duration) *UserUseCase {
+func NewUserUseCase(repo repository.UserRepo, timeout time.Duration) *UserUseCase {
 	return &UserUseCase{
 		repo:    repo,
 		timeout: timeout,
@@ -28,14 +29,14 @@ func (uc *UserUseCase) Register(ctx context.Context, user *entities.User, secret
 		return err
 	}
 
-	return uc.repo.Register(ctx, user)
+	return uc.repo.CreateUser(ctx, user)
 }
 
 func (uc *UserUseCase) Login(ctx context.Context, user *entities.User, secret []byte) error {
 	ctx, cancel := context.WithTimeout(ctx, uc.timeout)
 	defer cancel()
 
-	err := uc.repo.Login(ctx, user)
+	err := uc.repo.UserByLogin(ctx, user)
 	if err != nil {
 		return err
 	}

@@ -1,13 +1,17 @@
 package usecases
 
-import "time"
+import (
+	"time"
+
+	"github.com/KryukovO/gophermart/internal/gophermart/repository"
+)
 
 type BalanceUseCase struct {
-	repo    BalanceRepo
+	repo    repository.BalanceRepo
 	timeout time.Duration
 }
 
-func NewBalanceUseCase(repo BalanceRepo, timeout time.Duration) *BalanceUseCase {
+func NewBalanceUseCase(repo repository.BalanceRepo, timeout time.Duration) *BalanceUseCase {
 	return &BalanceUseCase{
 		repo:    repo,
 		timeout: timeout,

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/KryukovO/gophermart/internal/server/handlers"
-	"github.com/KryukovO/gophermart/internal/usecases"
+	"github.com/KryukovO/gophermart/internal/gophermart/server/http/handlers"
+	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"

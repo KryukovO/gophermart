@@ -9,9 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KryukovO/gophermart/internal/entities"
-	mocks "github.com/KryukovO/gophermart/internal/mocks/repository"
-	"github.com/KryukovO/gophermart/internal/usecases"
+	"github.com/KryukovO/gophermart/internal/gophermart/entities"
+	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
+	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
+
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
@@ -68,7 +69,7 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 		{
 			name: "Correct registration",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().Register(gomock.Any(), gomock.Any()).Return(nil)
+				mock.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args: args{
 				body: []byte(`{"login":"user1","password":"1234"}`),
@@ -81,7 +82,7 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 		{
 			name: "User already exists",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().Register(gomock.Any(), gomock.Any()).Return(entities.ErrUserAlreadyExists)
+				mock.EXPECT().CreateUser(gomock.Any(), gomock.Any()).Return(entities.ErrUserAlreadyExists)
 			},
 			args: args{
 				body: []byte(`{"login":"user1","password":"1234"}`),
@@ -161,7 +162,7 @@ func TestUserRequestLoginHandler(t *testing.T) {
 		{
 			name: "Correct login",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().Login(gomock.Any(), gomock.Any()).Return(nil)
+				mock.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(nil)
 			},
 			args: args{
 				body: []byte(`{"login":"user1","password":"1234"}`),
@@ -174,7 +175,7 @@ func TestUserRequestLoginHandler(t *testing.T) {
 		{
 			name: "Invalid login/password",
 			prepare: func(mock *mocks.MockUserRepo) {
-				mock.EXPECT().Login(gomock.Any(), gomock.Any()).Return(entities.ErrInvalidLoginPassword)
+				mock.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(entities.ErrInvalidLoginPassword)
 			},
 			args: args{
 				body: []byte(`{"login":"user1","password":"1234"}`),

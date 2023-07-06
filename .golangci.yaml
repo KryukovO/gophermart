@@ -2,7 +2,10 @@ issues:
   exclude:
     - "Error return value of `tx.Rollback` is not checked" # В этом проекте нет смысла проверять успешность отката транзакции
   exclude-rules:
-    - path: (.+)_test.go
+    - path: internal/gophermart/gophermart.go # Файл содержит одну большую функцию Run
+      linters:
+        - funlen
+    - path: (.+)_test.go # Не проверяем тесты на длину и дублирования
       linters:
         - funlen
         - dupl
@@ -28,7 +31,6 @@ linters:
     - execinquery # Линтер не позволяет выполнять SQL-запросы, включающие 'RETURNING'
     - contextcheck # Линтер считает инициализацию контекста для gracefull shutdown без наследования ошибкой
     - wrapcheck # Оборачивание ошибок
-    - funlen # Ограничение длины функций
 
 linters-settings:
   cyclop:

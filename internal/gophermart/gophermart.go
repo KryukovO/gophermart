@@ -9,37 +9,38 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/KryukovO/gophermart/internal/config"
-	"github.com/KryukovO/gophermart/internal/server"
-	"github.com/KryukovO/gophermart/internal/usecases"
-	"github.com/KryukovO/gophermart/internal/usecases/repository/pgrepo"
+	"github.com/KryukovO/gophermart/internal/gophermart/config"
+	"github.com/KryukovO/gophermart/internal/gophermart/repository/pgrepo"
+	server "github.com/KryukovO/gophermart/internal/gophermart/server/http"
+	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
+	"github.com/KryukovO/gophermart/internal/postgres"
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
 
 func Run(cfg *config.Config, logger *log.Logger) error {
-	logger.Info("Connecting to the repository...")
+	logger.Infof("Connect to the database: %s", cfg.DSN)
 
 	repoTimeout := time.Duration(cfg.RepositioryTimeout) * time.Second
 
 	repoCtx, cancel := context.WithTimeout(context.Background(), repoTimeout)
 	defer cancel()
 
-	repo, err := pgrepo.NewPgRepo(repoCtx, cfg.DSN, cfg.Migrations)
+	pg, err := postgres.NewPostgres(repoCtx, cfg.DSN, cfg.Migrations)
 	if err != nil {
 		return err
 	}
 
 	defer func() {
-		repo.Close()
+		pg.Close()
 
-		logger.Info("Repository closed")
+		logger.Info("Database connection closed")
 	}()
 
-	user := usecases.NewUserUseCase(repo, repoTimeout)
-	order := usecases.NewOrderUseCase(repo, repoTimeout)
-	balance := usecases.NewBalanceUseCase(repo, repoTimeout)
+	user := usecases.NewUserUseCase(pgrepo.NewUserRepo(pg), repoTimeout)
+	order := usecases.NewOrderUseCase(pgrepo.NewOrderRepo(pg), repoTimeout)
+	balance := usecases.NewBalanceUseCase(pgrepo.NewBalanceRepo(pg), repoTimeout)
 
 	server, err := server.NewServer(
 		cfg.Address, []byte(cfg.SecretKey),
