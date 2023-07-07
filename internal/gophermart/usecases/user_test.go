@@ -53,16 +53,13 @@ func TestRegister(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mock := mocks.NewMockUserRepo(ctrl)
+		repo := mocks.NewMockUserRepo(gomock.NewController(t))
 
 		if test.prepare != nil {
-			test.prepare(mock)
+			test.prepare(repo)
 		}
 
-		user := NewUserUseCase(mock, time.Minute)
+		user := NewUserUseCase(repo, time.Minute)
 
 		err := user.Register(context.Background(), test.args.user, secret)
 		if test.wantErr {
@@ -123,16 +120,13 @@ func TestLogin(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mock := mocks.NewMockUserRepo(ctrl)
+		repo := mocks.NewMockUserRepo(gomock.NewController(t))
 
 		if test.prepare != nil {
-			test.prepare(mock)
+			test.prepare(repo)
 		}
 
-		user := NewUserUseCase(mock, time.Minute)
+		user := NewUserUseCase(repo, time.Minute)
 
 		err := user.Login(context.Background(), test.args.user, secret)
 		if test.wants.wantErr {
