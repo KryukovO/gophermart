@@ -45,6 +45,16 @@ func (repo *UserRepo) AddUser(ctx context.Context, user *entities.User) error {
 		return err
 	}
 
+	query = `
+		INSERT INTO user_balance(user_id, balance)
+		VALUES($1, 0)
+	`
+
+	_, err = tx.ExecContext(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
 	user.ID = id
 
 	return tx.Commit()

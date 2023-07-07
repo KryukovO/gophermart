@@ -89,7 +89,7 @@ func (mw *Manager) AuthenticationMiddleware(next echo.HandlerFunc) echo.HandlerF
 			return e.NoContent(http.StatusUnauthorized)
 		}
 
-		var userID int
+		var userID int64
 
 		err = utils.ParseTokenString(&userID, tokenCookie.Value, mw.secret)
 		if err != nil {

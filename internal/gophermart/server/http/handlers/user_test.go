@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"bytes"
-	"errors"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,43 +10,17 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/entities"
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
+	"github.com/labstack/echo"
 
 	"github.com/golang/mock/gomock"
-	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	ErrRecorderIsNil = errors.New("empty response recorder")
-	ErrURLIsEmpty    = errors.New("empty URL")
-)
-
-func newEchoContext(
-	rec *httptest.ResponseRecorder,
-	method, url string, body io.Reader,
-) (echo.Context, error) {
-	if rec == nil {
-		return nil, ErrRecorderIsNil
-	}
-
-	if url == "" {
-		return nil, ErrURLIsEmpty
-	}
-
-	e := echo.New()
-	req := httptest.NewRequest(method, url, body)
-
-	ctx := e.NewContext(req, rec)
-	ctx.SetPath(url)
-
-	return ctx, nil
-}
-
 func TestUserRequestRegisterHandler(t *testing.T) {
 	var (
 		secret = []byte("secret")
-		url    = "/api/user/register"
+		path   = "/api/user/register"
 	)
 
 	type args struct {
@@ -106,25 +78,25 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mock := mocks.NewMockUserRepo(ctrl)
+		repo := mocks.NewMockUserRepo(gomock.NewController(t))
 
 		if test.prepare != nil {
-			test.prepare(mock)
+			test.prepare(repo)
 		}
 
 		rec := httptest.NewRecorder()
-		echoCtx, err := newEchoContext(rec, http.MethodPost, url, bytes.NewReader(test.args.body))
-		require.NoError(t, err)
+		req := httptest.NewRequest(http.MethodPost, path, bytes.NewBuffer(test.args.body))
+		server := echo.New()
+		echoCtx := server.NewContext(req, rec)
+
+		echoCtx.SetPath(path)
 
 		c := UserController{
-			user:          usecases.NewUserUseCase(mock, time.Minute),
+			user:          usecases.NewUserUseCase(repo, time.Minute),
 			secret:        secret,
 			tokenLifetime: time.Minute,
 		}
-		err = c.userRequestHandler(c.user.Register)(echoCtx)
+		err := c.userRequestHandler(c.user.Register)(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()
@@ -141,7 +113,7 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 func TestUserRequestLoginHandler(t *testing.T) {
 	var (
 		secret = []byte("secret")
-		url    = "/api/user/login"
+		path   = "/api/user/login"
 	)
 
 	type args struct {
@@ -199,25 +171,25 @@ func TestUserRequestLoginHandler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		mock := mocks.NewMockUserRepo(ctrl)
+		repo := mocks.NewMockUserRepo(gomock.NewController(t))
 
 		if test.prepare != nil {
-			test.prepare(mock)
+			test.prepare(repo)
 		}
 
 		rec := httptest.NewRecorder()
-		echoCtx, err := newEchoContext(rec, http.MethodPost, url, bytes.NewReader(test.args.body))
-		require.NoError(t, err)
+		req := httptest.NewRequest(http.MethodPost, path, bytes.NewBuffer(test.args.body))
+		server := echo.New()
+		echoCtx := server.NewContext(req, rec)
+
+		echoCtx.SetPath(path)
 
 		c := UserController{
-			user:          usecases.NewUserUseCase(mock, time.Minute),
+			user:          usecases.NewUserUseCase(repo, time.Minute),
 			secret:        secret,
 			tokenLifetime: time.Minute,
 		}
-		err = c.userRequestHandler(c.user.Login)(echoCtx)
+		err := c.userRequestHandler(c.user.Login)(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()

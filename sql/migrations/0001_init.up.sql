@@ -74,6 +74,22 @@ BEGIN
     --
     IF EXISTS (
         SELECT 1
+        FROM pg_type t 
+        JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace 
+        WHERE n.nspname = 'public' AND t.typname = 'order_status'
+    )
+    THEN
+        ALTER TYPE "order_status" ADD VALUE IF NOT EXISTS 'NEW';
+        ALTER TYPE "order_status" ADD VALUE IF NOT EXISTS 'PROCESSING';
+        ALTER TYPE "order_status" ADD VALUE IF NOT EXISTS 'INVALID';
+        ALTER TYPE "order_status" ADD VALUE IF NOT EXISTS 'PROCESSED';
+    ELSE
+        CREATE TYPE "order_status" AS ENUM ('NEW', 'PROCESSING', 'INVALID', 'PROCESSED');
+    END IF;
+    --
+    --
+    IF EXISTS (
+        SELECT 1
         FROM information_schema.tables 
         WHERE table_name = '__orders' AND table_schema = 'public'
     )
@@ -83,7 +99,10 @@ BEGIN
         CREATE TABLE IF NOT EXISTS "orders" (
             id BIGINT GENERATED ALWAYS AS IDENTITY,
             user_id BIGINT NOT NULL,
-            order_num INTEGER NOT NULL UNIQUE,
+            order_num TEXT NOT NULL UNIQUE,
+            status order_status NOT NULL,
+            accrual INTEGER,
+            uploaded TIMESTAMP WITH TIME ZONE NOT NULL,
             PRIMARY KEY(id),
             FOREIGN KEY(user_id) REFERENCES users(id)
         );

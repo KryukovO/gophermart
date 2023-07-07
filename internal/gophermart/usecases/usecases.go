@@ -12,8 +12,8 @@ type User interface {
 }
 
 type Order interface {
-	Orders() error
-	AddOrder() error
+	AddOrder(ctx context.Context, order *entities.Order) error
+	Orders(ctx context.Context, userID int64) ([]entities.Order, error)
 }
 
 type Balance interface {
