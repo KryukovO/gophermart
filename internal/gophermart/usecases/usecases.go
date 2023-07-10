@@ -17,7 +17,7 @@ type Order interface {
 }
 
 type Balance interface {
-	Balance() error
-	Withdraw() error
-	Withdrawals() error
+	Balance(ctx context.Context, userID int64) (entities.Balance, error)
+	ChangeBalance(ctx context.Context, change *entities.BalanceChange) error
+	Withdrawals(ctx context.Context, userID int64) ([]entities.BalanceChange, error)
 }

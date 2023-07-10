@@ -17,7 +17,7 @@ type OrderRepo interface {
 }
 
 type BalanceRepo interface {
-	Balance() error
-	AddWithdrawal() error
-	Withdrawals() error
+	Balance(ctx context.Context, userID int64) (entities.Balance, error)
+	ChangeBalance(ctx context.Context, change *entities.BalanceChange) error
+	Withdrawals(ctx context.Context, userID int64) ([]entities.BalanceChange, error)
 }

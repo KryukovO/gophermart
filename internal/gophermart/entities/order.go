@@ -46,10 +46,9 @@ type Order struct {
 
 func NewOrder(number string, userID int64) *Order {
 	return &Order{
-		UserID:     userID,
-		Number:     number,
-		Status:     OrderStatusNew,
-		UploadedAt: time.Now(),
+		UserID: userID,
+		Number: number,
+		Status: OrderStatusNew,
 	}
 }
 

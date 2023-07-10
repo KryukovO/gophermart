@@ -117,5 +117,5 @@ func (c *OrderController) ordersHandler(e echo.Context) error {
 		return e.NoContent(http.StatusNoContent)
 	}
 
-	return e.NoContent(http.StatusOK)
+	return e.JSON(http.StatusOK, orders)
 }

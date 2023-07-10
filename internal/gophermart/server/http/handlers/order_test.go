@@ -138,7 +138,8 @@ func TestOrdersHandler(t *testing.T) {
 	}
 
 	type wants struct {
-		status int
+		status      int
+		contentType string
 	}
 
 	tests := []struct {
@@ -156,7 +157,8 @@ func TestOrdersHandler(t *testing.T) {
 				userID: int64(1),
 			},
 			wants: wants{
-				status: http.StatusOK,
+				status:      http.StatusOK,
+				contentType: "application/json; charset=UTF-8",
 			},
 		},
 		{
@@ -188,7 +190,7 @@ func TestOrdersHandler(t *testing.T) {
 		}
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodPost, path, nil)
+		req := httptest.NewRequest(http.MethodGet, path, nil)
 		server := echo.New()
 		echoCtx := server.NewContext(req, rec)
 
@@ -206,5 +208,6 @@ func TestOrdersHandler(t *testing.T) {
 		defer res.Body.Close()
 
 		assert.Equal(t, test.wants.status, res.StatusCode)
+		assert.Equal(t, test.wants.contentType, res.Header.Get("Content-Type"))
 	}
 }

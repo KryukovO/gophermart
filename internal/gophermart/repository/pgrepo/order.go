@@ -22,7 +22,7 @@ func NewOrderRepo(db *postgres.Postgres) *OrderRepo {
 func (repo *OrderRepo) AddOrder(ctx context.Context, order *entities.Order) error {
 	query := `
 		INSERT INTO orders(user_id, order_num, status, uploaded)
-		VALUES($1, $2, $3, $4)
+		VALUES($1, $2, $3, now())
 	`
 
 	tx, err := repo.db.BeginTx(ctx, nil)
@@ -32,7 +32,7 @@ func (repo *OrderRepo) AddOrder(ctx context.Context, order *entities.Order) erro
 
 	defer tx.Rollback()
 
-	_, err = tx.ExecContext(ctx, query, order.UserID, order.Number, order.Status, order.UploadedAt)
+	_, err = tx.ExecContext(ctx, query, order.UserID, order.Number, order.Status)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code != pgerrcode.UniqueViolation {

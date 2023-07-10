@@ -30,7 +30,7 @@ BEGIN
         CREATE TABLE IF NOT EXISTS "user_balance" (
             id BIGINT GENERATED ALWAYS AS IDENTITY,
             user_id BIGINT NOT NULL UNIQUE,
-            balance INTEGER NOT NULL,
+            balance INTEGER NOT NULL CHECK >= 0,
             PRIMARY KEY(id),
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
@@ -61,10 +61,10 @@ BEGIN
     ELSE
         CREATE TABLE IF NOT EXISTS "user_balance_log" (
             id BIGINT GENERATED ALWAYS AS IDENTITY,
-            login TEXT NOT NULL UNIQUE,
             user_id BIGINT NOT NULL,
-            created TIMESTAMP WITH TIME ZONE NOT NULL,
+            processed TIMESTAMP WITH TIME ZONE NOT NULL,
             operation "balance_operation" NOT NULL,
+            order_num TEXT NOT NULL,
             sum INTEGER NOT NULL,
             PRIMARY KEY(id),
             FOREIGN KEY(user_id) REFERENCES users(id)
