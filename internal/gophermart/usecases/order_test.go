@@ -176,3 +176,110 @@ func TestOrders(t *testing.T) {
 		}
 	}
 }
+
+func TestProcessableOrders(t *testing.T) {
+	order1 := entities.Order{
+		UserID:     1,
+		Number:     "4561261212345467",
+		Status:     "New",
+		Accrual:    0,
+		UploadedAt: time.Now(),
+	}
+
+	type wants struct {
+		expected []entities.Order
+		wantErr  bool
+	}
+
+	tests := []struct {
+		name    string
+		prepare func(mock *mocks.MockOrderRepo)
+		wants   wants
+	}{
+		{
+			name: "Order list",
+			prepare: func(mock *mocks.MockOrderRepo) {
+				mock.EXPECT().ProcessableOrders(gomock.Any()).Return([]entities.Order{order1}, nil)
+			},
+			wants: wants{
+				expected: []entities.Order{order1},
+				wantErr:  false,
+			},
+		},
+		{
+			name: "Orders not found",
+			prepare: func(mock *mocks.MockOrderRepo) {
+				mock.EXPECT().ProcessableOrders(gomock.Any()).Return([]entities.Order{}, nil)
+			},
+			wants: wants{
+				expected: []entities.Order{},
+				wantErr:  false,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		repo := mocks.NewMockOrderRepo(gomock.NewController(t))
+
+		if test.prepare != nil {
+			test.prepare(repo)
+		}
+
+		order := NewOrderUseCase(repo, time.Minute)
+
+		orders, err := order.ProcessableOrders(context.Background())
+		if test.wants.wantErr {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+			assert.ElementsMatch(t, test.wants.expected, orders)
+		}
+	}
+}
+
+func TestUpdateOrder(t *testing.T) {
+	order1 := entities.Order{
+		UserID:     1,
+		Number:     "4561261212345467",
+		Status:     "PROCESSED",
+		Accrual:    500,
+		UploadedAt: time.Now().AddDate(0, 0, -1),
+	}
+
+	type wants struct {
+		wantErr bool
+	}
+
+	tests := []struct {
+		name    string
+		prepare func(mock *mocks.MockOrderRepo)
+		wants   wants
+	}{
+		{
+			name: "Successful update",
+			prepare: func(mock *mocks.MockOrderRepo) {
+				mock.EXPECT().UpdateOrder(gomock.Any(), gomock.Any()).Return(nil)
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		repo := mocks.NewMockOrderRepo(gomock.NewController(t))
+
+		if test.prepare != nil {
+			test.prepare(repo)
+		}
+
+		order := NewOrderUseCase(repo, time.Minute)
+
+		err := order.UpdateOrder(context.Background(), &order1)
+		if test.wants.wantErr {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	}
+}

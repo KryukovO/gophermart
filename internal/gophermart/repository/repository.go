@@ -14,6 +14,8 @@ type UserRepo interface {
 type OrderRepo interface {
 	AddOrder(ctx context.Context, order *entities.Order) error
 	Orders(ctx context.Context, userID int64) ([]entities.Order, error)
+	ProcessableOrders(ctx context.Context) ([]entities.Order, error)
+	UpdateOrder(ctx context.Context, order *entities.Order) error
 }
 
 type BalanceRepo interface {

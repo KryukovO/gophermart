@@ -63,3 +63,32 @@ func (mr *MockOrderRepoMockRecorder) Orders(arg0, arg1 interface{}) *gomock.Call
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Orders", reflect.TypeOf((*MockOrderRepo)(nil).Orders), arg0, arg1)
 }
+
+// ProcessableOrders mocks base method.
+func (m *MockOrderRepo) ProcessableOrders(arg0 context.Context) ([]entities.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProcessableOrders", arg0)
+	ret0, _ := ret[0].([]entities.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ProcessableOrders indicates an expected call of ProcessableOrders.
+func (mr *MockOrderRepoMockRecorder) ProcessableOrders(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessableOrders", reflect.TypeOf((*MockOrderRepo)(nil).ProcessableOrders), arg0)
+}
+
+// UpdateOrder mocks base method.
+func (m *MockOrderRepo) UpdateOrder(arg0 context.Context, arg1 *entities.Order) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrder", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrder indicates an expected call of UpdateOrder.
+func (mr *MockOrderRepoMockRecorder) UpdateOrder(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrder", reflect.TypeOf((*MockOrderRepo)(nil).UpdateOrder), arg0, arg1)
+}

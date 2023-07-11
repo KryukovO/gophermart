@@ -6,8 +6,11 @@ type Config struct {
 	AccrualAddress string `env:"ACCRUAL_SYSTEM_ADDRESS"` // Адрес системы расчёта начислений
 
 	SecretKey          string // Ключ шифрования токена авторизации
-	RepositioryTimeout uint   // Таймаут соединения с хранилищем
-	ShutdownTimeout    uint   // Таймаут для graceful shutdown сервера
+	RepositioryTimeout uint   // Таймаут соединения с хранилищем, сек
+	ShutdownTimeout    uint   // Таймаут для graceful shutdown сервера, сек
 	Migrations         string // Путь до директории с файлами миграции
-	UserTokenTTL       uint   // Время жизни токена пользователя в минутах
+	UserTokenTTL       uint   // Время жизни токена пользователя, мин
+	AccrualWorkers     uint   // Количество одновременно исходящих запросов к сервису Accrual
+	AccrualInterval    uint   // Интервал генерации новой партии запросов к сервису Accrual, сек
+	AccrualShutdown    uint   // Таймаут для завершения соединения с Accrual, сек
 }

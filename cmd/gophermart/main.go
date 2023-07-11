@@ -23,6 +23,9 @@ const (
 	shutdownTimeout   = 10
 	migrations        = "sql/migrations"
 	userTokenTTL      = 30
+	accrualWorkers    = 3
+	accrualInterval   = 10
+	accrualShutdown   = 3
 )
 
 func main() {
@@ -31,11 +34,16 @@ func main() {
 	flag.StringVar(&cfg.Address, "a", address, "Address to run HTTP server")
 	flag.StringVar(&cfg.DSN, "d", dsn, "URI to database")
 	flag.StringVar(&cfg.AccrualAddress, "r", accrualAddress, "Accrual system address")
+
 	flag.StringVar(&cfg.SecretKey, "secret", secretKey, "Authorization token encryption key")
-	flag.UintVar(&cfg.RepositioryTimeout, "timeout", repositoryTimeout, "Repository connection timeout")
-	flag.UintVar(&cfg.ShutdownTimeout, "shutdown", shutdownTimeout, "Server shutdown timeout")
+	flag.UintVar(&cfg.RepositioryTimeout, "timeout", repositoryTimeout, "Repository connection timeout, sec")
+	flag.UintVar(&cfg.ShutdownTimeout, "shutdown", shutdownTimeout, "Server shutdown timeout, sec")
 	flag.StringVar(&cfg.Migrations, "migrations", migrations, "Directory of database migration files")
-	flag.UintVar(&cfg.UserTokenTTL, "userttl", cfg.UserTokenTTL, "User token lifetime (minutes)")
+	flag.UintVar(&cfg.UserTokenTTL, "userttl", userTokenTTL, "User token lifetime, min")
+	flag.UintVar(&cfg.AccrualWorkers, "workers", accrualWorkers, "Number of concurrent requests to Accrual")
+	flag.UintVar(&cfg.AccrualInterval, "interval", accrualInterval, "Interval for generating requests to Accrual, sec")
+	flag.UintVar(&cfg.AccrualShutdown, "accshutdown", accrualShutdown, "Accrual shutdown timeout, sec")
+
 	flag.Parse()
 
 	logger := log.New()

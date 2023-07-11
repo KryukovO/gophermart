@@ -37,3 +37,17 @@ func (uc *OrderUseCase) Orders(ctx context.Context, userID int64) ([]entities.Or
 
 	return uc.repo.Orders(ctx, userID)
 }
+
+func (uc *OrderUseCase) ProcessableOrders(ctx context.Context) ([]entities.Order, error) {
+	ctx, cancel := context.WithTimeout(ctx, uc.timeout)
+	defer cancel()
+
+	return uc.repo.ProcessableOrders(ctx)
+}
+
+func (uc *OrderUseCase) UpdateOrder(ctx context.Context, order *entities.Order) error {
+	ctx, cancel := context.WithTimeout(ctx, uc.timeout)
+	defer cancel()
+
+	return uc.repo.UpdateOrder(ctx, order)
+}

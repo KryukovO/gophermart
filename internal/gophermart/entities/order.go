@@ -59,3 +59,9 @@ func (order *Order) Validate() error {
 
 	return nil
 }
+
+type AccrualOrder struct {
+	Order   string `json:"order"`
+	Status  string `json:"status"`
+	Accrual int    `json:"accrual"`
+}

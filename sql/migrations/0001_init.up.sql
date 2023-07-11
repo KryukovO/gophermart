@@ -30,7 +30,7 @@ BEGIN
         CREATE TABLE IF NOT EXISTS "user_balance" (
             id BIGINT GENERATED ALWAYS AS IDENTITY,
             user_id BIGINT NOT NULL UNIQUE,
-            balance INTEGER NOT NULL CHECK >= 0,
+            balance INTEGER NOT NULL CHECK (balance >= 0),
             PRIMARY KEY(id),
             FOREIGN KEY(user_id) REFERENCES users(id)
         );

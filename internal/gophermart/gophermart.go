@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	accrualconnector "github.com/KryukovO/gophermart/internal/gophermart/accrual-connector"
 	"github.com/KryukovO/gophermart/internal/gophermart/config"
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/pgrepo"
 	server "github.com/KryukovO/gophermart/internal/gophermart/server/http"
@@ -52,6 +53,13 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 		return err
 	}
 
+	accrualInterval := time.Duration(cfg.AccrualInterval) * time.Second
+	accrualConnector := accrualconnector.NewAccrualConnector(
+		cfg.AccrualAddress, cfg.AccrualWorkers, accrualInterval,
+		order, balance,
+		logger,
+	)
+
 	sigCtx, sigCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer sigCancel()
 
@@ -68,10 +76,21 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 	})
 
 	group.Go(func() error {
+		logger.Infof("Run accrual connector: workers: %d, interval: %s", cfg.AccrualWorkers, accrualInterval)
+
+		accrualConnector.Run(groupCtx)
+
+		logger.Info("Accrual connector stopped")
+
+		return nil
+	})
+
+	group.Go(func() error {
 		select {
 		case <-groupCtx.Done():
 			return nil
 		case <-sigCtx.Done():
+			logger.Info("Shutdown signal received")
 		}
 
 		logger.Info("Stopping server...")
@@ -87,6 +106,14 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 		} else {
 			logger.Info("Server stopped gracefully")
 		}
+
+		accrualCtx, accrualCancel := context.WithTimeout(
+			context.Background(),
+			time.Duration(cfg.AccrualShutdown)*time.Second,
+		)
+		defer accrualCancel()
+
+		accrualConnector.Shutdown(accrualCtx)
 
 		return nil
 	})
