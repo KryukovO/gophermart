@@ -79,7 +79,7 @@ func (c *UserController) userRequestHandler(
 			return e.NoContent(http.StatusBadRequest)
 		}
 
-		c.logger.Debugf("Request body: %+v", user)
+		c.logger.Debugf("[%s] Request body: %+v", uuid, user)
 
 		err = userFunc(e.Request().Context(), &user, c.secret)
 		if err != nil {

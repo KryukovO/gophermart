@@ -62,7 +62,7 @@ func (c *OrderController) addOrderHandler(e echo.Context) error {
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
-	c.logger.Debugf("Request body: %s", string(body))
+	c.logger.Debugf("[%s] Request body: %s", uuid, string(body))
 
 	userID := e.Get("userID")
 
