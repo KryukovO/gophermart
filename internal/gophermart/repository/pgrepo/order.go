@@ -155,7 +155,7 @@ func (repo *OrderRepo) ProcessableOrders(ctx context.Context) ([]entities.Order,
 func (repo *OrderRepo) UpdateOrder(ctx context.Context, order *entities.Order) error {
 	query := `
 		UPDATE orders
-		SET state = $1, accrual = $2
+		SET status = $1, accrual = $2
 		WHERE order_num = $3
 	`
 
