@@ -15,16 +15,16 @@ const (
 )
 
 type Balance struct {
-	UserID    int64 `json:"-"`
-	Current   int   `json:"current"`
-	Withdrawn int   `json:"withdrawn"`
+	UserID    int64   `json:"-"`
+	Current   float64 `json:"current"`
+	Withdrawn float64 `json:"withdrawn"`
 }
 
 type BalanceChange struct {
 	UserID      int64     `json:"-"`
 	Operation   string    `json:"-"`
 	Order       string    `json:"order"`
-	Sum         int       `json:"sum"`
+	Sum         float64   `json:"sum"`
 	ProcessedAt time.Time `json:"processed_at,omitempty"`
 }
 

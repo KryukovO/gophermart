@@ -24,7 +24,7 @@ const (
 	migrations        = "sql/migrations"
 	userTokenTTL      = 30
 	accrualWorkers    = 3
-	accrualInterval   = 10
+	accrualInterval   = 3
 	accrualShutdown   = 3
 )
 

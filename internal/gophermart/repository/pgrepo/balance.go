@@ -7,6 +7,7 @@ import (
 
 	"github.com/KryukovO/gophermart/internal/gophermart/entities"
 	"github.com/KryukovO/gophermart/internal/postgres"
+
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -21,7 +22,7 @@ func NewBalanceRepo(db *postgres.Postgres) *BalanceRepo {
 
 func (repo *BalanceRepo) Balance(ctx context.Context, userID int64) (entities.Balance, error) {
 	query := `
-		SELECT ub.balance, ubl.withdrawals
+		SELECT ub.balance, COALESCE(ubl.withdrawals, 0)
 		FROM user_balance ub
 		LEFT JOIN (
 			SELECT user_id, operation, sum(sum) AS withdrawals
@@ -45,7 +46,7 @@ func (repo *BalanceRepo) Balance(ctx context.Context, userID int64) (entities.Ba
 func (repo *BalanceRepo) ChangeBalance(ctx context.Context, change *entities.BalanceChange) error {
 	query1 := `
 		UPDATE user_balance
-		SET sum = sum %s $1
+		SET balance = balance %s $1
 		WHERE user_id = $2
 	`
 

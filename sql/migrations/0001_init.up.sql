@@ -30,7 +30,7 @@ BEGIN
         CREATE TABLE IF NOT EXISTS "user_balance" (
             id BIGINT GENERATED ALWAYS AS IDENTITY,
             user_id BIGINT NOT NULL UNIQUE,
-            balance INTEGER NOT NULL CHECK (balance >= 0),
+            balance DOUBLE PRECISION NOT NULL CHECK (balance >= 0),
             PRIMARY KEY(id),
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
@@ -65,7 +65,7 @@ BEGIN
             processed TIMESTAMP WITH TIME ZONE NOT NULL,
             operation "balance_operation" NOT NULL,
             order_num TEXT NOT NULL,
-            sum INTEGER NOT NULL,
+            sum DOUBLE PRECISION NOT NULL,
             PRIMARY KEY(id),
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
@@ -101,7 +101,7 @@ BEGIN
             user_id BIGINT NOT NULL,
             order_num TEXT NOT NULL UNIQUE,
             status order_status NOT NULL,
-            accrual INTEGER,
+            accrual DOUBLE PRECISION,
             uploaded TIMESTAMP WITH TIME ZONE NOT NULL,
             PRIMARY KEY(id),
             FOREIGN KEY(user_id) REFERENCES users(id)

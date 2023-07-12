@@ -7,6 +7,7 @@ import (
 
 	"github.com/KryukovO/gophermart/internal/gophermart/entities"
 	"github.com/KryukovO/gophermart/internal/postgres"
+
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -39,16 +40,12 @@ func (repo *OrderRepo) AddOrder(ctx context.Context, order *entities.Order) erro
 			return err
 		}
 
-		var userID int64
-
-		query = `SELECT user_id FROM orders WHERE order_num = $1`
-
-		err := tx.QueryRowContext(ctx, query, order.Number).Scan(&userID)
+		existOrder, err := repo.OrderByNumber(ctx, order.Number)
 		if err != nil {
 			return err
 		}
 
-		if order.UserID == userID {
+		if order.UserID == existOrder.UserID {
 			return entities.ErrOrderAlreadyAdded
 		}
 
@@ -56,6 +53,30 @@ func (repo *OrderRepo) AddOrder(ctx context.Context, order *entities.Order) erro
 	}
 
 	return tx.Commit()
+}
+
+func (repo *OrderRepo) OrderByNumber(ctx context.Context, number string) (*entities.Order, error) {
+	query := `
+		SELECT user_id, order_num, status, accrual, uploaded
+		FROM orders 
+		WHERE order_num = $1
+	`
+
+	var (
+		accrual sql.NullFloat64
+		order   = &entities.Order{}
+	)
+
+	err := repo.db.QueryRowContext(ctx, query, number).Scan(
+		&order.UserID, &order.Number, &order.Status, &accrual, &order.UploadedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	order.Accrual = accrual.Float64
+
+	return order, nil
 }
 
 func (repo *OrderRepo) Orders(ctx context.Context, userID int64) ([]entities.Order, error) {
@@ -76,7 +97,7 @@ func (repo *OrderRepo) Orders(ctx context.Context, userID int64) ([]entities.Ord
 
 	for rows.Next() {
 		var (
-			accrual sql.NullInt32
+			accrual sql.NullFloat64
 			order   = entities.Order{UserID: userID}
 		)
 
@@ -85,7 +106,7 @@ func (repo *OrderRepo) Orders(ctx context.Context, userID int64) ([]entities.Ord
 			return nil, err
 		}
 
-		order.Accrual = int(accrual.Int32)
+		order.Accrual = accrual.Float64
 
 		orders = append(orders, order)
 	}

@@ -61,8 +61,6 @@ func (connector *AccrualConnector) Run(ctx context.Context) {
 		case <-time.After(connector.interval):
 		}
 
-		connector.logger.Info(ctx)
-
 		orders, err := connector.order.ProcessableOrders(ctx)
 		if err != nil {
 			connector.logger.Errorf("AccrualConnector error: %s", err)
