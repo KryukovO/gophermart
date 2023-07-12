@@ -89,6 +89,7 @@ func (repo *BalanceRepo) Withdrawals(ctx context.Context, userID int64) ([]entit
 		SELECT order_num, sum, processed
 		FROM user_balance_log
 		WHERE user_id = $1
+		ORDER BY processed ASC
 	`
 
 	rows, err := repo.db.QueryContext(ctx, query, userID)
