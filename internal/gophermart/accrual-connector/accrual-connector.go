@@ -32,13 +32,18 @@ func NewAccrualConnector(
 	order usecases.Order, balance usecases.Balance,
 	logger *log.Logger,
 ) *AccrualConnector {
+	connectorLogger := log.StandardLogger()
+	if logger != nil {
+		connectorLogger = logger
+	}
+
 	return &AccrualConnector{
 		accrualAddr: accrualAddr,
 		workers:     workers,
 		interval:    interval,
 		order:       order,
 		balance:     balance,
-		logger:      logger,
+		logger:      connectorLogger,
 		close:       make(chan struct{}),
 	}
 }
@@ -119,7 +124,7 @@ func (connector *AccrualConnector) orderTaskWorker(ctx context.Context, tasks <-
 		case <-ctx.Done():
 			return nil
 		default:
-			accrualOrder, err := connector.doRequest(ctx, client, order.Number)
+			accrualOrder, err := connector.doRequest(ctx, &client, order.Number)
 			if err != nil {
 				return err
 			}
@@ -152,7 +157,7 @@ func (connector *AccrualConnector) orderTaskWorker(ctx context.Context, tasks <-
 }
 
 func (connector *AccrualConnector) doRequest(
-	ctx context.Context, client http.Client, order string,
+	ctx context.Context, client *http.Client, order string,
 ) (entities.AccrualOrder, error) {
 	url := fmt.Sprintf("%s/api/orders/%s", connector.accrualAddr, order)
 

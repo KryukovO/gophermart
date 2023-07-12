@@ -32,9 +32,9 @@ linters:
     - contextcheck # Линтер считает инициализацию контекста для gracefull shutdown без наследования ошибкой
     - wrapcheck # Оборачивание ошибок
 
-linters-settings:
-  cyclop:
-    max-complexity: 10
+linters-settings:  
+  errcheck:
+    ignore: '[rR]ead|[wW]rite'
 
   gomnd:
     ignored-files:
@@ -52,6 +52,7 @@ linters-settings:
       - stdlib
       - generic
       - echo.Context
+      - gomock.Matcher
 
   tagliatelle:
     case:
@@ -65,3 +66,5 @@ linters-settings:
       - t testing.T
       - p []byte
       - i int
+      - w http.ResponseWriter
+      - r *http.Request
