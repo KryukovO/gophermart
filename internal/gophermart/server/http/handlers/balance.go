@@ -101,6 +101,8 @@ func (c *BalanceController) withdrawHandler(e echo.Context) error {
 		return e.NoContent(http.StatusBadRequest)
 	}
 
+	c.logger.Debugf("Request body: %+v", change)
+
 	change.UserID = user
 	change.Operation = entities.BalanceOperationWithdrawal
 

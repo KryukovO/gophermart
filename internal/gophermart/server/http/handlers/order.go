@@ -62,6 +62,8 @@ func (c *OrderController) addOrderHandler(e echo.Context) error {
 		return e.NoContent(http.StatusInternalServerError)
 	}
 
+	c.logger.Debugf("Request body: %s", string(body))
+
 	userID := e.Get("userID")
 
 	user, ok := userID.(int64)

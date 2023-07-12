@@ -79,6 +79,8 @@ func (c *UserController) userRequestHandler(
 			return e.NoContent(http.StatusBadRequest)
 		}
 
+		c.logger.Debugf("Request body: %+v", user)
+
 		err = userFunc(e.Request().Context(), &user, c.secret)
 		if err != nil {
 			if errors.Is(err, entities.ErrUserAlreadyExists) {
