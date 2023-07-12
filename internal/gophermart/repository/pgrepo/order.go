@@ -84,6 +84,7 @@ func (repo *OrderRepo) Orders(ctx context.Context, userID int64) ([]entities.Ord
 		SELECT order_num, status, accrual, uploaded
 		FROM orders 
 		WHERE user_id = $1
+		ORDER BY uploaded ASC
 	`
 
 	rows, err := repo.db.QueryContext(ctx, query, userID)
@@ -122,7 +123,8 @@ func (repo *OrderRepo) ProcessableOrders(ctx context.Context) ([]entities.Order,
 	query := `
 		SELECT user_id, order_num, status, uploaded
 		FROM orders 
-		WHERE status = 'NEW' OR status = 'PROCESSED'
+		WHERE status = 'NEW' OR status = 'PROCESSING'
+		ORDER BY uploaded ASC
 	`
 
 	rows, err := repo.db.QueryContext(ctx, query)
