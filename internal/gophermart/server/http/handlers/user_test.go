@@ -11,6 +11,7 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 	"github.com/labstack/echo"
+	"github.com/sirupsen/logrus"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -91,12 +92,13 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 
 		echoCtx.SetPath(path)
 
-		c := UserController{
+		uc := UserController{
 			user:          usecases.NewUserUseCase(repo, time.Minute),
 			secret:        secret,
 			tokenLifetime: time.Minute,
+			logger:        logrus.StandardLogger(),
 		}
-		err := c.userRequestHandler(c.user.Register)(echoCtx)
+		err := uc.userRequestHandler(uc.user.Register)(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()
@@ -184,12 +186,13 @@ func TestUserRequestLoginHandler(t *testing.T) {
 
 		echoCtx.SetPath(path)
 
-		c := UserController{
+		uc := UserController{
 			user:          usecases.NewUserUseCase(repo, time.Minute),
 			secret:        secret,
 			tokenLifetime: time.Minute,
+			logger:        logrus.StandardLogger(),
 		}
-		err := c.userRequestHandler(c.user.Login)(echoCtx)
+		err := uc.userRequestHandler(uc.user.Login)(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()

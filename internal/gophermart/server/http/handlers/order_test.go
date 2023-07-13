@@ -12,6 +12,7 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -109,11 +110,12 @@ func TestAddOrderHandler(t *testing.T) {
 		echoCtx.SetPath(path)
 		echoCtx.Set("userID", test.args.userID)
 
-		c := OrderController{
-			order: usecases.NewOrderUseCase(repo, time.Minute),
+		oc := OrderController{
+			order:  usecases.NewOrderUseCase(repo, time.Minute),
+			logger: logrus.StandardLogger(),
 		}
 
-		err := c.addOrderHandler(echoCtx)
+		err := oc.addOrderHandler(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()
@@ -197,11 +199,12 @@ func TestOrdersHandler(t *testing.T) {
 		echoCtx.SetPath(path)
 		echoCtx.Set("userID", test.args.userID)
 
-		c := OrderController{
-			order: usecases.NewOrderUseCase(repo, time.Minute),
+		oc := OrderController{
+			order:  usecases.NewOrderUseCase(repo, time.Minute),
+			logger: logrus.StandardLogger(),
 		}
 
-		err := c.ordersHandler(echoCtx)
+		err := oc.ordersHandler(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()

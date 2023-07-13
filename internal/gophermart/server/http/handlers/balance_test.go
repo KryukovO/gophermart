@@ -12,6 +12,7 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -76,11 +77,11 @@ func TestBalanceHandler(t *testing.T) {
 		echoCtx.SetPath(path)
 		echoCtx.Set("userID", test.args.userID)
 
-		c := BalanceController{
+		bc := BalanceController{
 			balance: usecases.NewBalanceUseCase(repo, time.Minute),
 		}
 
-		err := c.balanceHandler(echoCtx)
+		err := bc.balanceHandler(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()
@@ -179,11 +180,12 @@ func TestWithdrawHandler(t *testing.T) {
 		echoCtx.SetPath(path)
 		echoCtx.Set("userID", test.args.userID)
 
-		c := BalanceController{
+		bc := BalanceController{
 			balance: usecases.NewBalanceUseCase(repo, time.Minute),
+			logger:  logrus.StandardLogger(),
 		}
 
-		err := c.withdrawHandler(echoCtx)
+		err := bc.withdrawHandler(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()
@@ -266,11 +268,12 @@ func TestWithdrawalsHandler(t *testing.T) {
 		echoCtx.SetPath(path)
 		echoCtx.Set("userID", test.args.userID)
 
-		c := BalanceController{
+		bc := BalanceController{
 			balance: usecases.NewBalanceUseCase(repo, time.Minute),
+			logger:  logrus.StandardLogger(),
 		}
 
-		err := c.withdrawalsHandler(echoCtx)
+		err := bc.withdrawalsHandler(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()

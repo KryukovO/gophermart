@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -39,7 +40,18 @@ func (mw *Manager) LoggingMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			uuid, e.Request().Method, e.Request().URL.Path,
 		)
 
-		return next(e)
+		err := next(e)
+
+		if err != nil {
+			var echoErr *echo.HTTPError
+			if errors.As(err, &echoErr) {
+				mw.logger.Infof("[%s] Request response status: %d", uuid, echoErr.Code)
+			}
+		} else {
+			mw.logger.Infof("[%s] Request response status: %d", uuid, e.Response().Status)
+		}
+
+		return err
 	})
 }
 
