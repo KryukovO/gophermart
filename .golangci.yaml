@@ -34,7 +34,7 @@ linters:
 
 linters-settings:  
   errcheck:
-    ignore: '[rR]ead|[wW]rite'
+    ignore: 'Read|Write|BindEnv'
 
   gomnd:
     ignored-files:

@@ -7,9 +7,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	accrualconnector "github.com/KryukovO/gophermart/internal/gophermart/accrual-connector"
+	"github.com/KryukovO/gophermart/internal/gophermart/accrualconnector"
 	"github.com/KryukovO/gophermart/internal/gophermart/config"
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/pgrepo"
 	server "github.com/KryukovO/gophermart/internal/gophermart/server/http"
@@ -23,9 +22,7 @@ import (
 func Run(cfg *config.Config, logger *log.Logger) error {
 	logger.Infof("Connect to the database: %s", cfg.DSN)
 
-	repoTimeout := time.Duration(cfg.RepositioryTimeout) * time.Second
-
-	repoCtx, cancel := context.WithTimeout(context.Background(), repoTimeout)
+	repoCtx, cancel := context.WithTimeout(context.Background(), cfg.RepositioryTimeout)
 	defer cancel()
 
 	pg, err := postgres.NewPostgres(repoCtx, cfg.DSN, cfg.Migrations)
@@ -39,13 +36,13 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 		logger.Info("Database connection closed")
 	}()
 
-	user := usecases.NewUserUseCase(pgrepo.NewUserRepo(pg), repoTimeout)
-	order := usecases.NewOrderUseCase(pgrepo.NewOrderRepo(pg), repoTimeout)
-	balance := usecases.NewBalanceUseCase(pgrepo.NewBalanceRepo(pg), repoTimeout)
+	user := usecases.NewUserUseCase(pgrepo.NewUserRepo(pg), cfg.RepositioryTimeout)
+	order := usecases.NewOrderUseCase(pgrepo.NewOrderRepo(pg), cfg.RepositioryTimeout)
+	balance := usecases.NewBalanceUseCase(pgrepo.NewBalanceRepo(pg), cfg.RepositioryTimeout)
 
 	server, err := server.NewServer(
 		cfg.Address, []byte(cfg.SecretKey),
-		time.Duration(cfg.UserTokenTTL)*time.Minute,
+		cfg.UserTokenTTL,
 		user, order, balance,
 		logger,
 	)
@@ -53,9 +50,8 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 		return err
 	}
 
-	accrualInterval := time.Duration(cfg.AccrualInterval) * time.Second
 	accrualConnector := accrualconnector.NewAccrualConnector(
-		cfg.AccrualAddress, cfg.AccrualWorkers, accrualInterval,
+		cfg.AccrualAddress, cfg.AccrualWorkers, cfg.AccrualInterval,
 		order, balance,
 		logger,
 	)
@@ -76,7 +72,7 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 	})
 
 	group.Go(func() error {
-		logger.Infof("Run accrual connector: workers: %d, interval: %s", cfg.AccrualWorkers, accrualInterval)
+		logger.Infof("Run accrual connector: workers: %d, interval: %s", cfg.AccrualWorkers, cfg.AccrualInterval)
 
 		accrualConnector.Run(groupCtx)
 
@@ -97,7 +93,7 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 
 		shutdownCtx, shutdownCancel := context.WithTimeout(
 			context.Background(),
-			time.Duration(cfg.ShutdownTimeout)*time.Second,
+			cfg.ShutdownTimeout,
 		)
 		defer shutdownCancel()
 
@@ -109,7 +105,7 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 
 		accrualCtx, accrualCancel := context.WithTimeout(
 			context.Background(),
-			time.Duration(cfg.AccrualShutdown)*time.Second,
+			cfg.AccrualShutdown,
 		)
 		defer accrualCancel()
 
