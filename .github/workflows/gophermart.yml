@@ -12,7 +12,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    container: golang:1.19
+    container: golang:1.20
 
     services:
       postgres:
@@ -49,7 +49,7 @@ jobs:
           (cd cmd/gophermart && go build -buildvcs=false -o gophermart)
           (cd cmd/accrual && chmod +x accrual_linux_amd64)
 
-      - name: Test
+      - name: Test using gophermarttest
         run: |
           gophermarttest \
             -test.v -test.run=^TestGophermart$ \
@@ -61,3 +61,14 @@ jobs:
             -accrual-host=localhost \
             -accrual-port=$(random unused-port) \
             -accrual-database-uri="postgresql://postgres:postgres@postgres/praktikum?sslmode=disable"
+
+      - name: Unit testing
+        run: go test -v -timeout 30s -race ./...
+
+      - name: Run coverage
+        run: go test -timeout 30s -race -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
