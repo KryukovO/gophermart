@@ -1,4 +1,6 @@
-# go-musthave-diploma-tpl
+[![gophermart](https://github.com/KryukovO/gophermart/actions/workflows/gophermart.yml/badge.svg)](https://github.com/KryukovO/gophermart/actions/workflows/gophermart.yml) [![codecov](https://codecov.io/gh/KryukovO/gophermart/branch/master/graph/badge.svg?token=KWJK8NWS4V)](https://codecov.io/gh/KryukovO/gophermart)
+
+# go-musthave-diploma-tpl 
 
 Шаблон репозитория для индивидуального дипломного проекта курса «Go-разработчик»
 
