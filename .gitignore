@@ -12,6 +12,9 @@
 *.out
 coverage.html
 
+# Enviroment variables
+.env
+
 # Binaries
 cmd/gophermart/main
 cmd/gophermart/gophermart

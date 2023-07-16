@@ -1,4 +1,4 @@
-.PHONY: mockgen build test coverage cover-html lint
+.PHONY: mockgen build test coverage cover-html lint docker-run docker-stop
 
 mockgen:
 	mockgen -destination internal/gophermart/repository/mocks/user.go -package mocks github.com/KryukovO/gophermart/internal/gophermart/repository UserRepo
@@ -23,3 +23,14 @@ cover-html:
 
 lint:
 	golangci-lint run ./...
+
+docker-run:
+	docker compose up --force-recreate --build -d
+
+docker-stop:
+	docker compose stop gophermart
+	docker compose rm gophermart -f
+	docker compose stop accrual
+	docker compose rm accrual -f
+	docker compose stop postgres
+	docker compose rm postgres -f

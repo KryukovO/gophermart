@@ -157,7 +157,7 @@ func (connector *AccrualConnector) orderTaskWorker(ctx context.Context, tasks <-
 func (connector *AccrualConnector) doRequest(
 	ctx context.Context, client *http.Client, order string,
 ) (entities.AccrualOrder, error) {
-	url := fmt.Sprintf("%s/api/orders/%s", connector.accrualAddr, order)
+	url := fmt.Sprintf("http://%s/api/orders/%s", connector.accrualAddr, order)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {

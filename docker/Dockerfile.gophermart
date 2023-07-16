@@ -1,0 +1,13 @@
+# Builder
+FROM golang:alpine AS builder
+WORKDIR /gophermart
+ADD go.mod .
+COPY . .
+RUN go build -o cmd/gophermart/gophermart cmd/gophermart/main.go
+
+# Gophermart service
+FROM alpine
+ENV TZ "Europe/Moscow"
+COPY --from=builder gophermart/cmd/gophermart/gophermart /usr/sbin/gophermart/
+COPY sql/migrations /usr/sbin/gophermart/migrations/
+CMD ["/usr/sbin/gophermart/gophermart"]

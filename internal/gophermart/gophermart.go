@@ -30,6 +30,8 @@ func Run(cfg *config.Config, logger *log.Logger) error {
 		return err
 	}
 
+	logger.Info("Database connection established")
+
 	defer func() {
 		pg.Close()
 
