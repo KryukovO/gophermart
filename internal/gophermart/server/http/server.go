@@ -8,7 +8,7 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/server/http/handlers"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
 

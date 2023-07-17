@@ -1,4 +1,4 @@
-.PHONY: mockgen build test coverage cover-html lint docker-run docker-stop
+.PHONY: mockgen build test coverage cover-html lint docker-run docker-stop swag
 
 mockgen:
 	mockgen -destination internal/gophermart/repository/mocks/user.go -package mocks github.com/KryukovO/gophermart/internal/gophermart/repository UserRepo
@@ -34,3 +34,6 @@ docker-stop:
 	docker compose rm accrual -f
 	docker compose stop postgres
 	docker compose rm postgres -f
+
+swag:
+	swag init -g internal/gophermart/gophermart.go --parseInternal --parseDependency

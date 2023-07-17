@@ -7,8 +7,9 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/server/http/middleware"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 var (
@@ -58,6 +59,8 @@ func SetHandlers(
 	if err != nil {
 		return err
 	}
+
+	server.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	server.Use(
 		mwManager.LoggingMiddleware,

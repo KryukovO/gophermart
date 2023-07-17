@@ -10,7 +10,7 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/entities"
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 
 	"github.com/golang/mock/gomock"

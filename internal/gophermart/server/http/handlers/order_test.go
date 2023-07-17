@@ -11,7 +11,7 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 	"github.com/golang/mock/gomock"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
