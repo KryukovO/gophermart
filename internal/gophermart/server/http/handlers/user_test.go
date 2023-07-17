@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestUserRequestRegisterHandler(t *testing.T) {
+func TestRegisterHandler(t *testing.T) {
 	var (
 		secret = []byte("secret")
 		path   = "/api/user/register"
@@ -98,7 +98,7 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 			tokenLifetime: time.Minute,
 			logger:        logrus.StandardLogger(),
 		}
-		err := uc.userRequestHandler(uc.user.Register)(echoCtx)
+		err := uc.registerHandler(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()
@@ -112,7 +112,7 @@ func TestUserRequestRegisterHandler(t *testing.T) {
 	}
 }
 
-func TestUserRequestLoginHandler(t *testing.T) {
+func TestLoginHandler(t *testing.T) {
 	var (
 		secret = []byte("secret")
 		path   = "/api/user/login"
@@ -192,7 +192,7 @@ func TestUserRequestLoginHandler(t *testing.T) {
 			tokenLifetime: time.Minute,
 			logger:        logrus.StandardLogger(),
 		}
-		err := uc.userRequestHandler(uc.user.Login)(echoCtx)
+		err := uc.loginHandler(echoCtx)
 		require.NoError(t, err)
 
 		res := rec.Result()

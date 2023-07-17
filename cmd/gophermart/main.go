@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/KryukovO/gophermart/docs"
 	"github.com/KryukovO/gophermart/internal/gophermart"
 	"github.com/KryukovO/gophermart/internal/gophermart/config"
 	"github.com/spf13/pflag"

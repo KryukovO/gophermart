@@ -1,4 +1,217 @@
+basePath: /
+definitions:
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+  github_com_KryukovO_gophermart_internal_gophermart_entities.Balance:
+    properties:
+      current:
+        type: number
+      withdrawn:
+        type: number
+    type: object
+  github_com_KryukovO_gophermart_internal_gophermart_entities.BalanceChange:
+    properties:
+      order:
+        type: string
+      processed_at:
+        type: string
+      sum:
+        type: number
+    type: object
+  github_com_KryukovO_gophermart_internal_gophermart_entities.Order:
+    properties:
+      accrual:
+        type: number
+      number:
+        type: string
+      status:
+        type: string
+      uploaded_at:
+        type: string
+    type: object
+host: localhost:8081
 info:
   contact: {}
-paths: {}
+  description: Service for maintaining a user's accumulative bonus account.
+  title: Loyalty points service
+  version: "1.0"
+paths:
+  /api/user/balance:
+    get:
+      operationId: balance
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.Balance'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Get user balance
+  /api/user/balance/withdraw:
+    post:
+      consumes:
+      - application/json
+      operationId: withdraw
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Withdrawal request
+  /api/user/login:
+    post:
+      consumes:
+      - application/json
+      operationId: login
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User authorization
+  /api/user/orders:
+    get:
+      consumes:
+      - text/plain
+      operationId: orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.Order'
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Get uploaded orders
+    post:
+      consumes:
+      - application/json
+      operationId: add-order
+      responses:
+        "200":
+          description: OK
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Add new order
+  /api/user/register:
+    post:
+      consumes:
+      - application/json
+      operationId: register
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User registration
+  /api/user/withdrawals:
+    get:
+      operationId: withdrawal-info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.BalanceChange'
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Withdrawal information
+securityDefinitions:
+  JWT:
+    description: JSON Web Token
+    in: cookie
+    name: token
+    type: apiKey
 swagger: "2.0"

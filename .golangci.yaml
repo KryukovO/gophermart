@@ -31,10 +31,15 @@ linters:
     - execinquery # Линтер не позволяет выполнять SQL-запросы, включающие 'RETURNING'
     - contextcheck # Линтер считает инициализацию контекста для gracefull shutdown без наследования ошибкой
     - wrapcheck # Оборачивание ошибок
+    - dupl # Обнаружение дублирования
 
 linters-settings:  
   errcheck:
     ignore: 'Read|Write|BindEnv'
+  
+  godot:
+    exclude:
+      - "^ @Router"
 
   gomnd:
     ignored-files:

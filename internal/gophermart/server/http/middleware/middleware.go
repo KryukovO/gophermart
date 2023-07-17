@@ -84,7 +84,6 @@ func (mw *Manager) GZipMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		if supportGZip {
 			acceptTypes := [...]string{
 				"application/json",
-				"text/html",
 			}
 			writer := NewWriter(e.Response().Writer, acceptTypes[:])
 			e.Response().Writer = writer

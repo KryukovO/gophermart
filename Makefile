@@ -36,4 +36,4 @@ docker-stop:
 	docker compose rm postgres -f
 
 swag:
-	swag init -g internal/gophermart/gophermart.go --parseInternal --parseDependency
+	swag init -g ./internal/gophermart/gophermart.go --parseInternal --parseDependency

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -45,71 +44,129 @@ func NewUserController(
 	}, nil
 }
 
-func (c *UserController) MapHandlers(router *echo.Router) error {
-	if router == nil {
-		return ErrRouterIsNil
+func (c *UserController) MapHandlers(group *echo.Group) error {
+	if group == nil {
+		return ErrGroupIsNil
 	}
 
-	router.Add(http.MethodPost, "/api/user/register", c.userRequestHandler(c.user.Register))
-	router.Add(http.MethodPost, "/api/user/login", c.userRequestHandler(c.user.Login))
+	group.Add(http.MethodPost, "/user/register", c.registerHandler)
+	group.Add(http.MethodPost, "/user/login", c.loginHandler)
 
 	return nil
 }
 
-func (c *UserController) userRequestHandler(
-	userFunc func(ctx context.Context, user *entities.User, secret []byte) error,
-) func(echo.Context) error {
-	return func(e echo.Context) error {
-		uuid := e.Get("uuid")
-		if uuid == nil {
-			uuid = ""
-		}
-
-		body, err := io.ReadAll(e.Request().Body)
-		if err != nil {
-			c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
-
-			return e.NoContent(http.StatusInternalServerError)
-		}
-
-		var user entities.User
-
-		err = json.Unmarshal(body, &user)
-		if err != nil {
-			return e.NoContent(http.StatusBadRequest)
-		}
-
-		c.logger.Debugf("[%s] Request body: %+v", uuid, user)
-
-		err = userFunc(e.Request().Context(), &user, c.secret)
-		if err != nil {
-			if errors.Is(err, entities.ErrUserAlreadyExists) {
-				return e.NoContent(http.StatusConflict)
-			}
-
-			if errors.Is(err, entities.ErrInvalidLoginPassword) {
-				return e.NoContent(http.StatusUnauthorized)
-			}
-
-			c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
-
-			return e.NoContent(http.StatusInternalServerError)
-		}
-
-		tokenString, err := utils.BuildJSWTString(c.secret, c.tokenLifetime, user.ID)
-		if err != nil {
-			c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
-
-			return e.NoContent(http.StatusInternalServerError)
-		}
-
-		e.SetCookie(&http.Cookie{
-			Name:     "token",
-			Value:    tokenString,
-			HttpOnly: true,
-			SameSite: http.SameSiteDefaultMode,
-		})
-
-		return e.NoContent(http.StatusOK)
+// @Summary User registration
+// @ID register
+// @Accept json
+// @Success 200
+// @Failure 400 {object} echo.HTTPError
+// @Failure 409 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /api/user/register [post]
+func (c *UserController) registerHandler(e echo.Context) error {
+	uuid := e.Get("uuid")
+	if uuid == nil {
+		uuid = ""
 	}
+
+	body, err := io.ReadAll(e.Request().Body)
+	if err != nil {
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
+		return e.NoContent(http.StatusInternalServerError)
+	}
+
+	var user entities.User
+
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		return e.NoContent(http.StatusBadRequest)
+	}
+
+	c.logger.Debugf("[%s] Request body: %+v", uuid, user)
+
+	err = c.user.Register(e.Request().Context(), &user, c.secret)
+	if err != nil {
+		if errors.Is(err, entities.ErrUserAlreadyExists) {
+			return e.NoContent(http.StatusConflict)
+		}
+
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
+		return e.NoContent(http.StatusInternalServerError)
+	}
+
+	tokenString, err := utils.BuildJSWTString(c.secret, c.tokenLifetime, user.ID)
+	if err != nil {
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
+		return e.NoContent(http.StatusInternalServerError)
+	}
+
+	e.SetCookie(&http.Cookie{
+		Name:     "token",
+		Value:    tokenString,
+		HttpOnly: true,
+		SameSite: http.SameSiteDefaultMode,
+	})
+
+	return e.NoContent(http.StatusOK)
+}
+
+// @Summary User authorization
+// @ID login
+// @Accept json
+// @Success 200
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Router /api/user/login [post]
+func (c *UserController) loginHandler(e echo.Context) error {
+	uuid := e.Get("uuid")
+	if uuid == nil {
+		uuid = ""
+	}
+
+	body, err := io.ReadAll(e.Request().Body)
+	if err != nil {
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
+		return e.NoContent(http.StatusInternalServerError)
+	}
+
+	var user entities.User
+
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		return e.NoContent(http.StatusBadRequest)
+	}
+
+	c.logger.Debugf("[%s] Request body: %+v", uuid, user)
+
+	err = c.user.Login(e.Request().Context(), &user, c.secret)
+	if err != nil {
+		if errors.Is(err, entities.ErrInvalidLoginPassword) {
+			return e.NoContent(http.StatusUnauthorized)
+		}
+
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
+		return e.NoContent(http.StatusInternalServerError)
+	}
+
+	tokenString, err := utils.BuildJSWTString(c.secret, c.tokenLifetime, user.ID)
+	if err != nil {
+		c.logger.Errorf("[%s] Something went wrong: %s", uuid, err)
+
+		return e.NoContent(http.StatusInternalServerError)
+	}
+
+	e.SetCookie(&http.Cookie{
+		Name:     "token",
+		Value:    tokenString,
+		HttpOnly: true,
+		SameSite: http.SameSiteDefaultMode,
+	})
+
+	return e.NoContent(http.StatusOK)
 }

@@ -38,17 +38,29 @@ func NewOrderController(
 	}, nil
 }
 
-func (c *OrderController) MapHandlers(router *echo.Router) error {
-	if router == nil {
-		return ErrRouterIsNil
+func (c *OrderController) MapHandlers(group *echo.Group) error {
+	if group == nil {
+		return ErrGroupIsNil
 	}
 
-	router.Add(http.MethodPost, "/api/user/orders", c.mw.AuthenticationMiddleware(c.addOrderHandler))
-	router.Add(http.MethodGet, "/api/user/orders", c.mw.AuthenticationMiddleware(c.ordersHandler))
+	group.Add(http.MethodPost, "/user/orders", c.mw.AuthenticationMiddleware(c.addOrderHandler))
+	group.Add(http.MethodGet, "/user/orders", c.mw.AuthenticationMiddleware(c.ordersHandler))
 
 	return nil
 }
 
+// @Summary Add new order
+// @ID add-order
+// @Accept json
+// @Success 200
+// @Success 202
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 409 {object} echo.HTTPError
+// @Failure 422 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Security JWT
+// @Router /api/user/orders [post]
 func (c *OrderController) addOrderHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
@@ -95,6 +107,16 @@ func (c *OrderController) addOrderHandler(e echo.Context) error {
 	return e.NoContent(http.StatusAccepted)
 }
 
+// @Summary Get uploaded orders
+// @ID orders
+// @Accept plain
+// @Produce json
+// @Success 200 {object} entities.Order
+// @Success 204
+// @Failure 401 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Security JWT
+// @Router /api/user/orders [get]
 func (c *OrderController) ordersHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {

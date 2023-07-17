@@ -19,6 +19,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// @title           Loyalty points service
+// @version         1.0
+// @description     Service for maintaining a user's accumulative bonus account.
+
+// @host      localhost:8081
+// @BasePath  /
+
+// @securityDefinitions.apikey  JWT
+// @in                          cookie
+// @name                        token
+// @description					JSON Web Token
+
 func Run(cfg *config.Config, logger *log.Logger) error {
 	logger.Infof("Connect to the database: %s", cfg.DSN)
 

@@ -15,7 +15,7 @@ import (
 var (
 	ErrUseCaseIsNil = errors.New("usecase is nil")
 	ErrServerIsNil  = errors.New("server instance is nil")
-	ErrRouterIsNil  = errors.New("router is nil")
+	ErrGroupIsNil   = errors.New("rout group is nil")
 )
 
 func SetHandlers(
@@ -25,7 +25,7 @@ func SetHandlers(
 	logger *log.Logger,
 ) error {
 	if server == nil {
-		return ErrRouterIsNil
+		return ErrServerIsNil
 	}
 
 	mwManager := middleware.NewManager(secret, logger)
@@ -45,27 +45,29 @@ func SetHandlers(
 		return err
 	}
 
-	err = userController.MapHandlers(server.Router())
+	group := server.Group("/api")
+
+	err = userController.MapHandlers(group)
 	if err != nil {
 		return err
 	}
 
-	err = orderController.MapHandlers(server.Router())
+	err = orderController.MapHandlers(group)
 	if err != nil {
 		return err
 	}
 
-	err = balanceController.MapHandlers(server.Router())
+	err = balanceController.MapHandlers(group)
 	if err != nil {
 		return err
 	}
 
-	server.GET("/swagger/*", echoSwagger.WrapHandler)
-
-	server.Use(
+	group.Use(
 		mwManager.LoggingMiddleware,
 		mwManager.GZipMiddleware,
 	)
+
+	server.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	return nil
 }

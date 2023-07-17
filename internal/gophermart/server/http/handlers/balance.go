@@ -39,18 +39,26 @@ func NewBalanceController(
 	}, nil
 }
 
-func (c *BalanceController) MapHandlers(router *echo.Router) error {
-	if router == nil {
-		return ErrRouterIsNil
+func (c *BalanceController) MapHandlers(group *echo.Group) error {
+	if group == nil {
+		return ErrGroupIsNil
 	}
 
-	router.Add(http.MethodGet, "/api/user/balance", c.mw.AuthenticationMiddleware(c.balanceHandler))
-	router.Add(http.MethodPost, "/api/user/balance/withdraw", c.mw.AuthenticationMiddleware(c.withdrawHandler))
-	router.Add(http.MethodGet, "/api/user/withdrawals", c.mw.AuthenticationMiddleware(c.withdrawalsHandler))
+	group.Add(http.MethodGet, "/user/balance", c.mw.AuthenticationMiddleware(c.balanceHandler))
+	group.Add(http.MethodPost, "/user/balance/withdraw", c.mw.AuthenticationMiddleware(c.withdrawHandler))
+	group.Add(http.MethodGet, "/user/withdrawals", c.mw.AuthenticationMiddleware(c.withdrawalsHandler))
 
 	return nil
 }
 
+// @Summary Get user balance
+// @ID balance
+// @Produce json
+// @Success 200 {object} entities.Balance
+// @Failure 401 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Security JWT
+// @Router /api/user/balance [get]
 func (c *BalanceController) balanceHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
@@ -74,6 +82,16 @@ func (c *BalanceController) balanceHandler(e echo.Context) error {
 	return e.JSON(http.StatusOK, &balance)
 }
 
+// @Summary Withdrawal request
+// @ID withdraw
+// @Accept json
+// @Success 200
+// @Failure 401 {object} echo.HTTPError
+// @Failure 402 {object} echo.HTTPError
+// @Failure 422 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Security JWT
+// @Router /api/user/balance/withdraw [post]
 func (c *BalanceController) withdrawHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
@@ -124,6 +142,15 @@ func (c *BalanceController) withdrawHandler(e echo.Context) error {
 	return e.NoContent(http.StatusOK)
 }
 
+// @Summary Withdrawal information
+// @ID withdrawal-info
+// @Produce json
+// @Success 200 {object} entities.BalanceChange
+// @Success 204
+// @Failure 401 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Security JWT
+// @Router /api/user/withdrawals [get]
 func (c *BalanceController) withdrawalsHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
