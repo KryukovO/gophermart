@@ -49,18 +49,20 @@ func (c *OrderController) MapHandlers(group *echo.Group) error {
 	return nil
 }
 
-// @Summary Add new order
-// @ID add-order
-// @Accept json
-// @Success 200
-// @Success 202
-// @Failure 400 {object} echo.HTTPError
-// @Failure 401 {object} echo.HTTPError
-// @Failure 409 {object} echo.HTTPError
-// @Failure 422 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Security JWT
-// @Router /api/user/orders [post]
+// @Summary       Add new order
+// @Description   Loading by the user of the order number.
+// @Tags          Gophermart HTTP API
+// @Accept        plain
+// @Param         order   body       string   true   "Order number."
+// @Success       200
+// @Success       202
+// @Failure       400     {object}   echo.HTTPError
+// @Failure       401     {object}   echo.HTTPError
+// @Failure       409     {object}   echo.HTTPError
+// @Failure       422     {object}   echo.HTTPError
+// @Failure       500     {object}   echo.HTTPError
+// @Security      JWT
+// @Router        /api/user/orders [post]
 func (c *OrderController) addOrderHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
@@ -107,16 +109,17 @@ func (c *OrderController) addOrderHandler(e echo.Context) error {
 	return e.NoContent(http.StatusAccepted)
 }
 
-// @Summary Get uploaded orders
-// @ID orders
-// @Accept plain
-// @Produce json
-// @Success 200 {object} entities.Order
-// @Success 204
-// @Failure 401 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Security JWT
-// @Router /api/user/orders [get]
+// @Summary       Get uploaded orders
+// @Description   Get a list of order numbers uploaded by the user,
+// @Description   their processing statuses and information about accruals.
+// @Tags          Gophermart HTTP API
+// @Produce       json
+// @Success       200    {array}    entities.Order
+// @Success       204
+// @Failure       401    {object}   echo.HTTPError
+// @Failure       500    {object}   echo.HTTPError
+// @Security      JWT
+// @Router        /api/user/orders [get]
 func (c *OrderController) ordersHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {

@@ -1,17 +1,15 @@
 basePath: /
 definitions:
-  echo.HTTPError:
-    properties:
-      message: {}
-    type: object
-  github_com_KryukovO_gophermart_internal_gophermart_entities.Balance:
+  Balance:
+    description: User's loyalty points account balance.
     properties:
       current:
         type: number
       withdrawn:
         type: number
     type: object
-  github_com_KryukovO_gophermart_internal_gophermart_entities.BalanceChange:
+  BalanceChange:
+    description: Change of the user's loyalty points account balance.
     properties:
       order:
         type: string
@@ -20,7 +18,8 @@ definitions:
       sum:
         type: number
     type: object
-  github_com_KryukovO_gophermart_internal_gophermart_entities.Order:
+  Order:
+    description: Order data.
     properties:
       accrual:
         type: number
@@ -31,6 +30,18 @@ definitions:
       uploaded_at:
         type: string
     type: object
+  User:
+    description: User account data.
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
 host: localhost:8081
 info:
   contact: {}
@@ -40,14 +51,14 @@ info:
 paths:
   /api/user/balance:
     get:
-      operationId: balance
+      description: Get the current balance of the user's loyalty points account.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.Balance'
+            $ref: '#/definitions/Balance'
         "401":
           description: Unauthorized
           schema:
@@ -59,11 +70,21 @@ paths:
       security:
       - JWT: []
       summary: Get user balance
+      tags:
+      - Gophermart HTTP API
   /api/user/balance/withdraw:
     post:
       consumes:
       - application/json
-      operationId: withdraw
+      description: Withdraw points from the loyalty points account to pay for a new
+        order.
+      parameters:
+      - description: Order number and withdrawal sum.
+        in: body
+        name: withdrawal
+        required: true
+        schema:
+          $ref: '#/definitions/BalanceChange'
       responses:
         "200":
           description: OK
@@ -86,11 +107,20 @@ paths:
       security:
       - JWT: []
       summary: Withdrawal request
+      tags:
+      - Gophermart HTTP API
   /api/user/login:
     post:
       consumes:
       - application/json
-      operationId: login
+      description: User authorization by login and password.
+      parameters:
+      - description: User login and password.
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/User'
       responses:
         "200":
           description: OK
@@ -107,18 +137,22 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: User authorization
+      tags:
+      - Gophermart HTTP API
   /api/user/orders:
     get:
-      consumes:
-      - text/plain
-      operationId: orders
+      description: |-
+        Get a list of order numbers uploaded by the user,
+        their processing statuses and information about accruals.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.Order'
+            items:
+              $ref: '#/definitions/Order'
+            type: array
         "204":
           description: No Content
         "401":
@@ -132,10 +166,19 @@ paths:
       security:
       - JWT: []
       summary: Get uploaded orders
+      tags:
+      - Gophermart HTTP API
     post:
       consumes:
-      - application/json
-      operationId: add-order
+      - text/plain
+      description: Loading by the user of the order number.
+      parameters:
+      - description: Order number.
+        in: body
+        name: order
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: OK
@@ -164,11 +207,20 @@ paths:
       security:
       - JWT: []
       summary: Add new order
+      tags:
+      - Gophermart HTTP API
   /api/user/register:
     post:
       consumes:
       - application/json
-      operationId: register
+      description: User registration by login and password.
+      parameters:
+      - description: User login and password.
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/User'
       responses:
         "200":
           description: OK
@@ -185,16 +237,18 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: User registration
+      tags:
+      - Gophermart HTTP API
   /api/user/withdrawals:
     get:
-      operationId: withdrawal-info
+      description: Get a list of withdrawals from a user's loyalty points account.
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.BalanceChange'
+            $ref: '#/definitions/BalanceChange'
         "204":
           description: No Content
         "401":
@@ -207,7 +261,9 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - JWT: []
-      summary: Withdrawal information
+      summary: Get withdrawals list
+      tags:
+      - Gophermart HTTP API
 securityDefinitions:
   JWT:
     description: JSON Web Token

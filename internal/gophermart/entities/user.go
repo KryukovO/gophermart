@@ -16,13 +16,14 @@ var (
 	ErrInvalidLoginPassword = errors.New("invalid login/password")
 )
 
+// @Description User account data.
 type User struct {
-	ID                int64  `json:"-"`
-	Login             string `json:"login"`
-	Password          string `json:"password"`
-	EncryptedPassword string `json:"-"`
-	Salt              string `json:"-"`
-}
+	ID                int64  `json:"-"        swaggerignore:"true"`
+	Login             string `json:"login"    swaggerignore:"false"`
+	Password          string `json:"password" swaggerignore:"false"`
+	EncryptedPassword string `json:"-"        swaggerignore:"true"`
+	Salt              string `json:"-"        swaggerignore:"true"`
+} // @name User
 
 // Выполняет шифрование SHA-256 поля Password с добавлением соли.
 func (user *User) Encrypt(secret []byte) error {

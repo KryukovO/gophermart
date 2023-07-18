@@ -36,13 +36,14 @@ func AccrualToOrderStatus(status string) string {
 	return mapping[status]
 }
 
+// @Description Order data.
 type Order struct {
-	UserID     int64     `json:"-"`
-	Number     string    `json:"number"`
-	Status     string    `json:"status"`
-	Accrual    float64   `json:"accrual,omitempty"`
-	UploadedAt time.Time `json:"uploaded_at"`
-}
+	UserID     int64     `json:"-"                 swaggerignore:"true"`
+	Number     string    `json:"number"            swaggerignore:"false"`
+	Status     string    `json:"status"            swaggerignore:"false"`
+	Accrual    float64   `json:"accrual,omitempty" swaggerignore:"false"`
+	UploadedAt time.Time `json:"uploaded_at"       swaggerignore:"false"`
+} // @name Order
 
 func NewOrder(number string, userID int64) *Order {
 	return &Order{
@@ -60,8 +61,9 @@ func (order *Order) Validate() error {
 	return nil
 }
 
+// @Description Order data from the Accrual service.
 type AccrualOrder struct {
-	Order   string  `json:"order"`
-	Status  string  `json:"status"`
-	Accrual float64 `json:"accrual"`
-}
+	Order   string  `json:"order"   swaggerignore:"false"`
+	Status  string  `json:"status"  swaggerignore:"false"`
+	Accrual float64 `json:"accrual" swaggerignore:"false"`
+} // @name AccrualOrder

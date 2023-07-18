@@ -51,14 +51,15 @@ func (c *BalanceController) MapHandlers(group *echo.Group) error {
 	return nil
 }
 
-// @Summary Get user balance
-// @ID balance
-// @Produce json
-// @Success 200 {object} entities.Balance
-// @Failure 401 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Security JWT
-// @Router /api/user/balance [get]
+// @Summary       Get user balance
+// @Description   Get the current balance of the user's loyalty points account.
+// @Tags          Gophermart HTTP API
+// @Produce       json
+// @Success       200    {object}   entities.Balance
+// @Failure       401    {object}   echo.HTTPError
+// @Failure       500    {object}   echo.HTTPError
+// @Security      JWT
+// @Router        /api/user/balance [get]
 func (c *BalanceController) balanceHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
@@ -82,16 +83,18 @@ func (c *BalanceController) balanceHandler(e echo.Context) error {
 	return e.JSON(http.StatusOK, &balance)
 }
 
-// @Summary Withdrawal request
-// @ID withdraw
-// @Accept json
-// @Success 200
-// @Failure 401 {object} echo.HTTPError
-// @Failure 402 {object} echo.HTTPError
-// @Failure 422 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Security JWT
-// @Router /api/user/balance/withdraw [post]
+// @Summary       Withdrawal request
+// @Description   Withdraw points from the loyalty points account to pay for a new order.
+// @Tags          Gophermart HTTP API
+// @Accept        json
+// @Param         withdrawal   body       entities.BalanceChange   true   "Order number and withdrawal sum."
+// @Success       200
+// @Failure       401          {object}   echo.HTTPError
+// @Failure       402          {object}   echo.HTTPError
+// @Failure       422          {object}   echo.HTTPError
+// @Failure       500          {object}   echo.HTTPError
+// @Security      JWT
+// @Router        /api/user/balance/withdraw [post]
 func (c *BalanceController) withdrawHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
@@ -142,15 +145,16 @@ func (c *BalanceController) withdrawHandler(e echo.Context) error {
 	return e.NoContent(http.StatusOK)
 }
 
-// @Summary Withdrawal information
-// @ID withdrawal-info
-// @Produce json
-// @Success 200 {object} entities.BalanceChange
-// @Success 204
-// @Failure 401 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Security JWT
-// @Router /api/user/withdrawals [get]
+// @Summary       Get withdrawals list
+// @Description   Get a list of withdrawals from a user's loyalty points account.
+// @Tags          Gophermart HTTP API
+// @Produce       json
+// @Success       200    {object}   entities.BalanceChange
+// @Success       204
+// @Failure       401    {object}   echo.HTTPError
+// @Failure       500    {object}   echo.HTTPError
+// @Security      JWT
+// @Router        /api/user/withdrawals [get]
 func (c *BalanceController) withdrawalsHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {

@@ -23,16 +23,19 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
+                "description": "Get the current balance of the user's loyalty points account.",
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Gophermart HTTP API"
+                ],
                 "summary": "Get user balance",
-                "operationId": "balance",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.Balance"
+                            "$ref": "#/definitions/Balance"
                         }
                     },
                     "401": {
@@ -57,11 +60,25 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
+                "description": "Withdraw points from the loyalty points account to pay for a new order.",
                 "consumes": [
                     "application/json"
                 ],
+                "tags": [
+                    "Gophermart HTTP API"
+                ],
                 "summary": "Withdrawal request",
-                "operationId": "withdraw",
+                "parameters": [
+                    {
+                        "description": "Order number and withdrawal sum.",
+                        "name": "withdrawal",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/BalanceChange"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -95,11 +112,25 @@ const docTemplate = `{
         },
         "/api/user/login": {
             "post": {
+                "description": "User authorization by login and password.",
                 "consumes": [
                     "application/json"
                 ],
+                "tags": [
+                    "Gophermart HTTP API"
+                ],
                 "summary": "User authorization",
-                "operationId": "login",
+                "parameters": [
+                    {
+                        "description": "User login and password.",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -132,19 +163,22 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
-                "consumes": [
-                    "text/plain"
-                ],
+                "description": "Get a list of order numbers uploaded by the user,\ntheir processing statuses and information about accruals.",
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Gophermart HTTP API"
+                ],
                 "summary": "Get uploaded orders",
-                "operationId": "orders",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.Order"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Order"
+                            }
                         }
                     },
                     "204": {
@@ -170,11 +204,25 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
+                "description": "Loading by the user of the order number.",
                 "consumes": [
-                    "application/json"
+                    "text/plain"
+                ],
+                "tags": [
+                    "Gophermart HTTP API"
                 ],
                 "summary": "Add new order",
-                "operationId": "add-order",
+                "parameters": [
+                    {
+                        "description": "Order number.",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -217,11 +265,25 @@ const docTemplate = `{
         },
         "/api/user/register": {
             "post": {
+                "description": "User registration by login and password.",
                 "consumes": [
                     "application/json"
                 ],
+                "tags": [
+                    "Gophermart HTTP API"
+                ],
                 "summary": "User registration",
-                "operationId": "register",
+                "parameters": [
+                    {
+                        "description": "User login and password.",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -254,16 +316,19 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
+                "description": "Get a list of withdrawals from a user's loyalty points account.",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Withdrawal information",
-                "operationId": "withdrawal-info",
+                "tags": [
+                    "Gophermart HTTP API"
+                ],
+                "summary": "Get withdrawals list",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_KryukovO_gophermart_internal_gophermart_entities.BalanceChange"
+                            "$ref": "#/definitions/BalanceChange"
                         }
                     },
                     "204": {
@@ -286,13 +351,8 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "echo.HTTPError": {
-            "type": "object",
-            "properties": {
-                "message": {}
-            }
-        },
-        "github_com_KryukovO_gophermart_internal_gophermart_entities.Balance": {
+        "Balance": {
+            "description": "User's loyalty points account balance.",
             "type": "object",
             "properties": {
                 "current": {
@@ -303,7 +363,8 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_KryukovO_gophermart_internal_gophermart_entities.BalanceChange": {
+        "BalanceChange": {
+            "description": "Change of the user's loyalty points account balance.",
             "type": "object",
             "properties": {
                 "order": {
@@ -317,7 +378,8 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_KryukovO_gophermart_internal_gophermart_entities.Order": {
+        "Order": {
+            "description": "Order data.",
             "type": "object",
             "properties": {
                 "accrual": {
@@ -332,6 +394,24 @@ const docTemplate = `{
                 "uploaded_at": {
                     "type": "string"
                 }
+            }
+        },
+        "User": {
+            "description": "User account data.",
+            "type": "object",
+            "properties": {
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "echo.HTTPError": {
+            "type": "object",
+            "properties": {
+                "message": {}
             }
         }
     },

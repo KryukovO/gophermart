@@ -55,14 +55,16 @@ func (c *UserController) MapHandlers(group *echo.Group) error {
 	return nil
 }
 
-// @Summary User registration
-// @ID register
-// @Accept json
-// @Success 200
-// @Failure 400 {object} echo.HTTPError
-// @Failure 409 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /api/user/register [post]
+// @Summary       User registration
+// @Description   User registration by login and password.
+// @Tags          Gophermart HTTP API
+// @Accept        json
+// @Param         user   body       entities.User   true   "User login and password."
+// @Success       200
+// @Failure       400    {object}   echo.HTTPError
+// @Failure       409    {object}   echo.HTTPError
+// @Failure       500    {object}   echo.HTTPError
+// @Router        /api/user/register [post]
 func (c *UserController) registerHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
@@ -113,14 +115,16 @@ func (c *UserController) registerHandler(e echo.Context) error {
 	return e.NoContent(http.StatusOK)
 }
 
-// @Summary User authorization
-// @ID login
-// @Accept json
-// @Success 200
-// @Failure 400 {object} echo.HTTPError
-// @Failure 401 {object} echo.HTTPError
-// @Failure 500 {object} echo.HTTPError
-// @Router /api/user/login [post]
+// @Summary       User authorization
+// @Description   User authorization by login and password.
+// @Tags          Gophermart HTTP API
+// @Accept        json
+// @Param         user   body       entities.User   true   "User login and password."
+// @Success       200
+// @Failure       400    {object}   echo.HTTPError
+// @Failure       401    {object}   echo.HTTPError
+// @Failure       500    {object}   echo.HTTPError
+// @Router        /api/user/login [post]
 func (c *UserController) loginHandler(e echo.Context) error {
 	uuid := e.Get("uuid")
 	if uuid == nil {
