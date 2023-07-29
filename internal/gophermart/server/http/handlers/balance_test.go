@@ -9,13 +9,142 @@ import (
 
 	"github.com/KryukovO/gophermart/internal/gophermart/entities"
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
+	"github.com/KryukovO/gophermart/internal/gophermart/server/http/middleware"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestNewBalanceController(t *testing.T) {
+	type args struct {
+		balance   usecases.Balance
+		mwManager *middleware.Manager
+		logger    *log.Logger
+	}
+
+	type wants struct {
+		wantErr bool
+	}
+
+	tests := []struct {
+		name  string
+		args  args
+		wants wants
+	}{
+		{
+			name: "Correct creation",
+			args: args{
+				balance:   usecases.NewBalanceUseCase(mocks.NewMockBalanceRepo(gomock.NewController(t)), time.Second),
+				mwManager: middleware.NewManager([]byte("secret"), log.New()),
+				logger:    log.New(),
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil logger",
+			args: args{
+				balance:   usecases.NewBalanceUseCase(mocks.NewMockBalanceRepo(gomock.NewController(t)), time.Second),
+				mwManager: middleware.NewManager([]byte("secret"), log.New()),
+				logger:    nil,
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil balance",
+			args: args{
+				balance:   nil,
+				mwManager: middleware.NewManager([]byte("secret"), log.New()),
+				logger:    log.New(),
+			},
+			wants: wants{
+				wantErr: true,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		ctrl, err := NewBalanceController(
+			test.args.balance, test.args.mwManager, test.args.logger,
+		)
+
+		if test.wants.wantErr {
+			assert.Error(t, err)
+		} else {
+			require.NoError(t, err)
+			require.NotNil(t, ctrl)
+
+			assert.Equal(t, test.args.balance, ctrl.balance)
+			assert.Equal(t, test.args.mwManager, ctrl.mw)
+
+			if test.args.logger != nil {
+				assert.Equal(t, test.args.logger, ctrl.logger)
+			} else {
+				assert.NotNil(t, ctrl.logger)
+			}
+		}
+	}
+}
+
+func TestBalanceMapHandlers(t *testing.T) {
+	type args struct {
+		group *echo.Group
+	}
+
+	type wants struct {
+		wantErr bool
+	}
+
+	tests := []struct {
+		name  string
+		args  args
+		wants wants
+	}{
+		{
+			name: "Correct mapping",
+			args: args{
+				group: echo.New().Group("/"),
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil group",
+			args: args{
+				group: nil,
+			},
+			wants: wants{
+				wantErr: true,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		ctrl, err := NewBalanceController(
+			usecases.NewBalanceUseCase(mocks.NewMockBalanceRepo(gomock.NewController(t)), time.Second),
+			middleware.NewManager([]byte("secret"), log.New()),
+			log.New(),
+		)
+
+		require.NoError(t, err)
+		require.NotNil(t, ctrl)
+
+		err = ctrl.MapHandlers(test.args.group)
+
+		if test.wants.wantErr {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	}
+}
 
 func TestBalanceHandler(t *testing.T) {
 	path := "/api/user/balance"
@@ -182,7 +311,7 @@ func TestWithdrawHandler(t *testing.T) {
 
 		bc := BalanceController{
 			balance: usecases.NewBalanceUseCase(repo, time.Minute),
-			logger:  logrus.StandardLogger(),
+			logger:  log.StandardLogger(),
 		}
 
 		err := bc.withdrawHandler(echoCtx)
@@ -270,7 +399,7 @@ func TestWithdrawalsHandler(t *testing.T) {
 
 		bc := BalanceController{
 			balance: usecases.NewBalanceUseCase(repo, time.Minute),
-			logger:  logrus.StandardLogger(),
+			logger:  log.StandardLogger(),
 		}
 
 		err := bc.withdrawalsHandler(echoCtx)

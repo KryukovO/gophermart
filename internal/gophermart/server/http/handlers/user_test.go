@@ -11,12 +11,146 @@ import (
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestNewUserController(t *testing.T) {
+	type args struct {
+		user          usecases.User
+		secret        []byte
+		tokenLifetime time.Duration
+		logger        *log.Logger
+	}
+
+	type wants struct {
+		wantErr bool
+	}
+
+	tests := []struct {
+		name  string
+		args  args
+		wants wants
+	}{
+		{
+			name: "Correct creation",
+			args: args{
+				user:          usecases.NewUserUseCase(mocks.NewMockUserRepo(gomock.NewController(t)), time.Second),
+				secret:        []byte{},
+				tokenLifetime: time.Second,
+				logger:        log.New(),
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil logger",
+			args: args{
+				user:          usecases.NewUserUseCase(mocks.NewMockUserRepo(gomock.NewController(t)), time.Second),
+				secret:        []byte{},
+				tokenLifetime: time.Second,
+				logger:        nil,
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil user",
+			args: args{
+				user:          nil,
+				secret:        []byte{},
+				tokenLifetime: time.Second,
+				logger:        log.New(),
+			},
+			wants: wants{
+				wantErr: true,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		ctrl, err := NewUserController(
+			test.args.user, test.args.secret, test.args.tokenLifetime, test.args.logger,
+		)
+
+		if test.wants.wantErr {
+			assert.Error(t, err)
+		} else {
+			require.NoError(t, err)
+			require.NotNil(t, ctrl)
+
+			assert.Equal(t, test.args.user, ctrl.user)
+			assert.Equal(t, test.args.secret, ctrl.secret)
+			assert.Equal(t, test.args.tokenLifetime, ctrl.tokenLifetime)
+
+			if test.args.logger != nil {
+				assert.Equal(t, test.args.logger, ctrl.logger)
+			} else {
+				assert.NotNil(t, ctrl.logger)
+			}
+		}
+	}
+}
+
+func TestUserMapHandlers(t *testing.T) {
+	type args struct {
+		group *echo.Group
+	}
+
+	type wants struct {
+		wantErr bool
+	}
+
+	tests := []struct {
+		name  string
+		args  args
+		wants wants
+	}{
+		{
+			name: "Correct mapping",
+			args: args{
+				group: echo.New().Group("/"),
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil group",
+			args: args{
+				group: nil,
+			},
+			wants: wants{
+				wantErr: true,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		ctrl, err := NewUserController(
+			usecases.NewUserUseCase(mocks.NewMockUserRepo(gomock.NewController(t)), time.Second),
+			[]byte{},
+			time.Second,
+			log.New(),
+		)
+
+		require.NoError(t, err)
+		require.NotNil(t, ctrl)
+
+		err = ctrl.MapHandlers(test.args.group)
+
+		if test.wants.wantErr {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	}
+}
 
 func TestRegisterHandler(t *testing.T) {
 	var (
@@ -96,7 +230,7 @@ func TestRegisterHandler(t *testing.T) {
 			user:          usecases.NewUserUseCase(repo, time.Minute),
 			secret:        secret,
 			tokenLifetime: time.Minute,
-			logger:        logrus.StandardLogger(),
+			logger:        log.StandardLogger(),
 		}
 		err := uc.registerHandler(echoCtx)
 		require.NoError(t, err)
@@ -190,7 +324,7 @@ func TestLoginHandler(t *testing.T) {
 			user:          usecases.NewUserUseCase(repo, time.Minute),
 			secret:        secret,
 			tokenLifetime: time.Minute,
-			logger:        logrus.StandardLogger(),
+			logger:        log.StandardLogger(),
 		}
 		err := uc.loginHandler(echoCtx)
 		require.NoError(t, err)

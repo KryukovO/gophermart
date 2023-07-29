@@ -9,13 +9,142 @@ import (
 
 	"github.com/KryukovO/gophermart/internal/gophermart/entities"
 	"github.com/KryukovO/gophermart/internal/gophermart/repository/mocks"
+	"github.com/KryukovO/gophermart/internal/gophermart/server/http/middleware"
 	"github.com/KryukovO/gophermart/internal/gophermart/usecases"
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestNewOrderController(t *testing.T) {
+	type args struct {
+		order     usecases.Order
+		mwManager *middleware.Manager
+		logger    *log.Logger
+	}
+
+	type wants struct {
+		wantErr bool
+	}
+
+	tests := []struct {
+		name  string
+		args  args
+		wants wants
+	}{
+		{
+			name: "Correct creation",
+			args: args{
+				order:     usecases.NewOrderUseCase(mocks.NewMockOrderRepo(gomock.NewController(t)), time.Second),
+				mwManager: middleware.NewManager([]byte("secret"), log.New()),
+				logger:    log.New(),
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil logger",
+			args: args{
+				order:     usecases.NewOrderUseCase(mocks.NewMockOrderRepo(gomock.NewController(t)), time.Second),
+				mwManager: middleware.NewManager([]byte("secret"), log.New()),
+				logger:    nil,
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil order",
+			args: args{
+				order:     nil,
+				mwManager: middleware.NewManager([]byte("secret"), log.New()),
+				logger:    log.New(),
+			},
+			wants: wants{
+				wantErr: true,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		ctrl, err := NewOrderController(
+			test.args.order, test.args.mwManager, test.args.logger,
+		)
+
+		if test.wants.wantErr {
+			assert.Error(t, err)
+		} else {
+			require.NoError(t, err)
+			require.NotNil(t, ctrl)
+
+			assert.Equal(t, test.args.order, ctrl.order)
+			assert.Equal(t, test.args.mwManager, ctrl.mw)
+
+			if test.args.logger != nil {
+				assert.Equal(t, test.args.logger, ctrl.logger)
+			} else {
+				assert.NotNil(t, ctrl.logger)
+			}
+		}
+	}
+}
+
+func TestOrderMapHandlers(t *testing.T) {
+	type args struct {
+		group *echo.Group
+	}
+
+	type wants struct {
+		wantErr bool
+	}
+
+	tests := []struct {
+		name  string
+		args  args
+		wants wants
+	}{
+		{
+			name: "Correct mapping",
+			args: args{
+				group: echo.New().Group("/"),
+			},
+			wants: wants{
+				wantErr: false,
+			},
+		},
+		{
+			name: "Nil group",
+			args: args{
+				group: nil,
+			},
+			wants: wants{
+				wantErr: true,
+			},
+		},
+	}
+
+	for _, test := range tests {
+		ctrl, err := NewOrderController(
+			usecases.NewOrderUseCase(mocks.NewMockOrderRepo(gomock.NewController(t)), time.Second),
+			middleware.NewManager([]byte("secret"), log.New()),
+			log.New(),
+		)
+
+		require.NoError(t, err)
+		require.NotNil(t, ctrl)
+
+		err = ctrl.MapHandlers(test.args.group)
+
+		if test.wants.wantErr {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	}
+}
 
 func TestAddOrderHandler(t *testing.T) {
 	path := "/api/user/orders"
@@ -112,7 +241,7 @@ func TestAddOrderHandler(t *testing.T) {
 
 		oc := OrderController{
 			order:  usecases.NewOrderUseCase(repo, time.Minute),
-			logger: logrus.StandardLogger(),
+			logger: log.StandardLogger(),
 		}
 
 		err := oc.addOrderHandler(echoCtx)
@@ -201,7 +330,7 @@ func TestOrdersHandler(t *testing.T) {
 
 		oc := OrderController{
 			order:  usecases.NewOrderUseCase(repo, time.Minute),
-			logger: logrus.StandardLogger(),
+			logger: log.StandardLogger(),
 		}
 
 		err := oc.ordersHandler(echoCtx)
