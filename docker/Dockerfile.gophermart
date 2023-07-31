@@ -8,6 +8,7 @@ RUN go build -o cmd/gophermart/gophermart cmd/gophermart/main.go
 # Gophermart service
 FROM alpine
 ENV TZ "Europe/Moscow"
-COPY --from=builder gophermart/cmd/gophermart/gophermart /usr/sbin/gophermart/
-COPY sql/migrations /usr/sbin/gophermart/migrations/
-CMD ["/usr/sbin/gophermart/gophermart"]
+ENV DATABASE_MIGRATIONS "/usr/local/bin/gophermart/migrations"
+COPY --from=builder gophermart/cmd/gophermart/gophermart /usr/local/bin/gophermart/
+COPY sql/migrations ${DATABASE_MIGRATIONS}
+CMD ["/usr/local/bin/gophermart/gophermart"]

@@ -28,12 +28,7 @@ docker-run:
 	docker compose up --force-recreate --build -d
 
 docker-stop:
-	docker compose stop gophermart
-	docker compose rm gophermart -f
-	docker compose stop accrual
-	docker compose rm accrual -f
-	docker compose stop postgres
-	docker compose rm postgres -f
+	docker compose down
 
 swag:
 	swag init -g ./internal/gophermart/gophermart.go --parseInternal --parseDependency
