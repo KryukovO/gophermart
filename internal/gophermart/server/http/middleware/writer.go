@@ -21,6 +21,8 @@ func NewWriter(writer http.ResponseWriter, acceptTypes []string) *Writer {
 }
 
 func (w *Writer) Write(p []byte) (int, error) {
+	defer w.Close()
+
 	contentType := w.Header().Get("Content-Type")
 	for _, typ := range w.acceptTypes {
 		if strings.Contains(contentType, typ) {
