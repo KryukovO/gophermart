@@ -85,6 +85,10 @@ func (c *UserController) registerHandler(e echo.Context) error {
 		return e.NoContent(http.StatusBadRequest)
 	}
 
+	if user.Login == "" || user.Password == "" {
+		return e.NoContent(http.StatusBadRequest)
+	}
+
 	c.logger.Debugf("[%s] Request body: %+v", uuid, user)
 
 	err = c.user.Register(e.Request().Context(), &user, c.secret)
@@ -142,6 +146,10 @@ func (c *UserController) loginHandler(e echo.Context) error {
 
 	err = json.Unmarshal(body, &user)
 	if err != nil {
+		return e.NoContent(http.StatusBadRequest)
+	}
+
+	if user.Login == "" || user.Password == "" {
 		return e.NoContent(http.StatusBadRequest)
 	}
 

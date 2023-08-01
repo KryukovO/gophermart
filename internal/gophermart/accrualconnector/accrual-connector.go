@@ -15,7 +15,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var ErrUnexpectedStatus = errors.New("unexpected response status")
+var (
+	ErrUnexpectedStatus          = errors.New("unexpected response status")
+	ErrAccrualServiceUnavailable = errors.New("accrual service is unavailable")
+	ErrAccrualOrderNotFound      = errors.New("accrual order not found")
+)
 
 type AccrualConnector struct {
 	accrualAddr string
@@ -124,6 +128,10 @@ func (connector *AccrualConnector) orderTaskWorker(ctx context.Context, tasks <-
 		default:
 			accrualOrder, err := connector.doRequest(ctx, &client, order.Number)
 			if err != nil {
+				if errors.Is(err, ErrAccrualOrderNotFound) {
+					continue
+				}
+
 				return err
 			}
 
@@ -172,6 +180,14 @@ func (connector *AccrualConnector) doRequest(
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusNoContent {
+			return entities.AccrualOrder{}, ErrAccrualOrderNotFound
+		}
+
+		if resp.StatusCode == http.StatusTooManyRequests {
+			return entities.AccrualOrder{}, ErrAccrualServiceUnavailable
+		}
+
 		return entities.AccrualOrder{}, fmt.Errorf("%s: %w", resp.Status, ErrUnexpectedStatus)
 	}
 

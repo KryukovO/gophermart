@@ -200,10 +200,32 @@ func TestRegisterHandler(t *testing.T) {
 			},
 		},
 		{
-			name:    "Incorrect request body",
+			name:    "Incorrect request body #1",
 			prepare: nil,
 			args: args{
 				body: []byte(`{"login":"user1","password":true}`),
+			},
+			wants: wants{
+				status:    http.StatusBadRequest,
+				setCookie: false,
+			},
+		},
+		{
+			name:    "Incorrect request body #2",
+			prepare: nil,
+			args: args{
+				body: []byte(`{"login":"","password":"1234"}`),
+			},
+			wants: wants{
+				status:    http.StatusBadRequest,
+				setCookie: false,
+			},
+		},
+		{
+			name:    "Incorrect request body #3",
+			prepare: nil,
+			args: args{
+				body: []byte(`{}`),
 			},
 			wants: wants{
 				status:    http.StatusBadRequest,
@@ -294,10 +316,32 @@ func TestLoginHandler(t *testing.T) {
 			},
 		},
 		{
-			name:    "Incorrect request body",
+			name:    "Incorrect request body #1",
 			prepare: nil,
 			args: args{
 				body: []byte(`{"login":"user1","password":true}`),
+			},
+			wants: wants{
+				status:    http.StatusBadRequest,
+				setCookie: false,
+			},
+		},
+		{
+			name:    "Incorrect request body #2",
+			prepare: nil,
+			args: args{
+				body: []byte(`{"login":"","password":"1234"}`),
+			},
+			wants: wants{
+				status:    http.StatusBadRequest,
+				setCookie: false,
+			},
+		},
+		{
+			name:    "Incorrect request body #3",
+			prepare: nil,
+			args: args{
+				body: []byte(`{}`),
 			},
 			wants: wants{
 				status:    http.StatusBadRequest,

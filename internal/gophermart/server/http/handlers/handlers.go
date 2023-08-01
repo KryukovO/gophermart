@@ -46,6 +46,10 @@ func SetHandlers(
 	}
 
 	group := server.Group("/api")
+	group.Use(
+		mwManager.LoggingMiddleware,
+		mwManager.GZipMiddleware,
+	)
 
 	err = userController.MapHandlers(group)
 	if err != nil {
@@ -61,11 +65,6 @@ func SetHandlers(
 	if err != nil {
 		return err
 	}
-
-	group.Use(
-		mwManager.LoggingMiddleware,
-		mwManager.GZipMiddleware,
-	)
 
 	server.GET("/swagger/*", echoSwagger.WrapHandler)
 
