@@ -122,7 +122,7 @@ func (c *BalanceController) withdrawHandler(e echo.Context) error {
 		return e.NoContent(http.StatusBadRequest)
 	}
 
-	if change.Order == "" || change.Sum < 0 {
+	if change.Order == "" || change.Sum <= 0 {
 		return e.NoContent(http.StatusBadRequest)
 	}
 

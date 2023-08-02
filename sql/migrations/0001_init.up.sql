@@ -107,4 +107,10 @@ BEGIN
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
     END IF;
+    --
+    --
+    CREATE INDEX IF NOT EXISTS orders_user_id_idx ON orders USING btree(user_id);
+    CREATE INDEX IF NOT EXISTS orders_status_idx ON orders USING hash(status) WHERE status = 'NEW' OR status = 'PROCESSING';
+    CREATE INDEX IF NOT EXISTS user_balance_log_user_id_idx ON user_balance_log USING btree(user_id) WHERE operation = 'withdrawal';
+    --
 END $$;

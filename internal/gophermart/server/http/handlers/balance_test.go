@@ -296,6 +296,16 @@ func TestWithdrawHandler(t *testing.T) {
 			},
 		},
 		{
+			name: "Incorrect request body #3",
+			args: args{
+				body:   []byte(`{"order":"4561261212345467","sum":0}`),
+				userID: int64(1),
+			},
+			wants: wants{
+				status: http.StatusBadRequest,
+			},
+		},
+		{
 			name: "User unauthorized",
 			args: args{},
 			wants: wants{
