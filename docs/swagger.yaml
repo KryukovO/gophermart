@@ -1,0 +1,273 @@
+basePath: /
+definitions:
+  Balance:
+    description: User's loyalty points account balance.
+    properties:
+      current:
+        type: number
+      withdrawn:
+        type: number
+    type: object
+  BalanceChange:
+    description: Change of the user's loyalty points account balance.
+    properties:
+      order:
+        type: string
+      processed_at:
+        type: string
+      sum:
+        type: number
+    type: object
+  Order:
+    description: Order data.
+    properties:
+      accrual:
+        type: number
+      number:
+        type: string
+      status:
+        type: string
+      uploaded_at:
+        type: string
+    type: object
+  User:
+    description: User account data.
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+host: localhost:8081
+info:
+  contact: {}
+  description: Service for maintaining a user's accumulative bonus account.
+  title: Loyalty points service
+  version: "1.0"
+paths:
+  /api/user/balance:
+    get:
+      description: Get the current balance of the user's loyalty points account.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Balance'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Get user balance
+      tags:
+      - Gophermart HTTP API
+  /api/user/balance/withdraw:
+    post:
+      consumes:
+      - application/json
+      description: Withdraw points from the loyalty points account to pay for a new
+        order.
+      parameters:
+      - description: Order number and withdrawal sum.
+        in: body
+        name: withdrawal
+        required: true
+        schema:
+          $ref: '#/definitions/BalanceChange'
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Withdrawal request
+      tags:
+      - Gophermart HTTP API
+  /api/user/login:
+    post:
+      consumes:
+      - application/json
+      description: User authorization by login and password.
+      parameters:
+      - description: User login and password.
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User authorization
+      tags:
+      - Gophermart HTTP API
+  /api/user/orders:
+    get:
+      description: |-
+        Get a list of order numbers uploaded by the user,
+        their processing statuses and information about accruals.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Order'
+            type: array
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Get uploaded orders
+      tags:
+      - Gophermart HTTP API
+    post:
+      consumes:
+      - text/plain
+      description: Loading by the user of the order number.
+      parameters:
+      - description: Order number.
+        in: body
+        name: order
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "202":
+          description: Accepted
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Add new order
+      tags:
+      - Gophermart HTTP API
+  /api/user/register:
+    post:
+      consumes:
+      - application/json
+      description: User registration by login and password.
+      parameters:
+      - description: User login and password.
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User registration
+      tags:
+      - Gophermart HTTP API
+  /api/user/withdrawals:
+    get:
+      description: Get a list of withdrawals from a user's loyalty points account.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/BalanceChange'
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - JWT: []
+      summary: Get withdrawals list
+      tags:
+      - Gophermart HTTP API
+securityDefinitions:
+  JWT:
+    description: JSON Web Token
+    in: cookie
+    name: token
+    type: apiKey
+swagger: "2.0"

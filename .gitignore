@@ -10,6 +10,10 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+coverage.html
+
+# Enviroment variables
+.env
 
 # Binaries
 cmd/gophermart/main

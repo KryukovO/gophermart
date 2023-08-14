@@ -1,0 +1,75 @@
+issues:
+  exclude:
+    - "Error return value of `tx.Rollback` is not checked" # В этом проекте нет смысла проверять успешность отката транзакции
+  exclude-rules:
+    - path: internal/gophermart/gophermart.go # Файл содержит одну большую функцию Run
+      linters:
+        - funlen
+    - path: (.+)_test.go # Не проверяем тесты
+      linters:
+        - funlen
+        - dupl
+
+linters:
+  enable-all: true
+  disable:
+    - nosnakecase # "deprecated". Заменено на revive(var-naming) 
+    - scopelint # "deprecated". Заменено на exportloopref
+    - varcheck # "deprecated". Заменено на unused
+    - exhaustivestruct # "deprecated". Заменено на exhaustruct
+    - deadcode # "deprecated". Заменено на unused
+    - structcheck # "deprecated". Заменено на unused
+    - golint # "deprecated". Заменено на revive
+    - ifshort # "deprecated"
+    - interfacer # "deprecated"
+    - maligned # "deprecated". Заменено на govet 'fieldalignment'
+    - gci # golangci-lint с ним не запускается
+    - depguard # Ограничения на пакеты не нужны
+    - testpackage # Все тесты пишем в рамках их пакетов
+    - exhaustruct # Почти все структуры, используемые в проекте, так или иначе инициализируются с неполным списком полей
+    - paralleltest # Распараллеливание тестирования не выполняем
+    - execinquery # Линтер не позволяет выполнять SQL-запросы, включающие 'RETURNING'
+    - contextcheck # Линтер считает инициализацию контекста для gracefull shutdown без наследования ошибкой
+    - wrapcheck # Оборачивание ошибок
+    - dupl # Обнаружение дублирования
+
+linters-settings:  
+  errcheck:
+    ignore: 'Read|Write|BindEnv'
+  
+  godot:
+    exclude:
+      - "^ @Router"
+
+  gomnd:
+    ignored-files:
+      - luhn.go
+
+  gosec:
+    excludes:
+      - G404 # для проекта возможностей math/rand достаточно, и crypto/rand не нужен
+      
+  ireturn:
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+      - generic
+      - echo.Context
+      - gomock.Matcher
+
+  tagliatelle:
+    case:
+      rules:
+        json: snake
+
+  varnamelen:
+    min-name-length: 2
+    ignore-decls:
+      - e echo.Context
+      - t testing.T
+      - p []byte
+      - i int
+      - w http.ResponseWriter
+      - r *http.Request
